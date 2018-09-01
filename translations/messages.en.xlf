@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="symfony_is_great">
+                <source>Symfony is great</source>
+                <target>Symfony is greatest</target>
+            </trans-unit>
+            <trans-unit id="site_contact">
+                <source>My contacts</source>
+                <target>My contacts</target>
+            </trans-unit>
+            <trans-unit id="site_contact_description">
+                <source>By email</source>
+                <target>By email</target>
+            </trans-unit>
+            <trans-unit id="form_load_file_btn_save">
+                <source>Load File</source>
+                <target>Load File</target>
+            </trans-unit>
+            <trans-unit id="form_load_file_error_message">
+                <source>Any stock item which costs less that $5 and has less than 10 stock will not be imported.</source>
+                <target>Any stock item which costs less that $5 and has less than 10 stock will not be imported.</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
