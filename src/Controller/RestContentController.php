@@ -26,7 +26,7 @@ class RestContentController extends FOSRestController implements ClassResourceIn
 
         $title = $request->request->get('title', '');
         $content = $request->request->get('content', '');
-        $id_column = $request->request->get('column', '');
+        $id_column = $request->request->get('idColumn', '');
 
         $card = new Card();
         $card->setTitle($title);
@@ -37,6 +37,33 @@ class RestContentController extends FOSRestController implements ClassResourceIn
         $entityManager->flush();
 
         $response = 'success!';
+
+        return new JsonResponse($response);
+    }
+
+    public function postUpdateAction(Request $request) {
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $id = $request->request->get('idTicket', '');
+        $title = $request->request->get('title', '');
+        $content = $request->request->get('content', '');
+        $id_column = $request->request->get('idColumn', '');
+
+        $card = $entityManager->getRepository(Card::class)->findOneBy(array('id' => $id));
+
+        if (!empty($card)) {
+            $card->setTitle($title);
+            $card->setContent($content);
+            $card->setIdColumn($id_column);
+
+            $entityManager->persist($card);
+            $entityManager->flush();
+
+            $response = 'success!';
+        } else {
+            $response = 'not found!';
+        }
+
 
         return new JsonResponse($response);
     }
