@@ -10,16 +10,11 @@ use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 
-
-class RestContentController extends FOSRestController
+class RestColumnController extends FOSRestController
 {
-//    public function postAction(Request $request) {
-//        return new JsonResponse(var_export($request->request->get('title'), true));
-//    }
-
     /**
      * @Rest\Post(
-     *     path="rest/api/cards/add"
+     *     path="rest/api/columns/add"
      * )
      *
      * @param Request $request
@@ -29,13 +24,11 @@ class RestContentController extends FOSRestController
         $entityManager = $this->getDoctrine()->getManager();
 
         $title = $request->request->get('title', '');
-        $content = $request->request->get('content', '');
-        $id_column = $request->request->get('idColumn', '');
+        $board = $request->request->get('board_id', '');
 
-        $card = new Card();
+        $card = new Column();
         $card->setTitle($title);
-        $card->setContent($content);
-        $card->setIdColumn($id_column);
+        $card->setTitle();
 
         $entityManager->persist($card);
         $entityManager->flush();
@@ -47,7 +40,7 @@ class RestContentController extends FOSRestController
 
     /**
      * @Rest\Post(
-     *     path="rest/api/cards/update"
+     *     path="rest/api/columns/update"
      * )
      *
      * @param Request $request
@@ -82,7 +75,7 @@ class RestContentController extends FOSRestController
 
     /**
      * @Rest\Get(
-     *     path="rest/api/cards"
+     *     path="rest/api/columns"
      * )
      */
     public function getAction() {
@@ -92,35 +85,5 @@ class RestContentController extends FOSRestController
         $result = $cards;
 
         return new JsonResponse($result);
-    }
-
-    /**
-     * @Rest\Get(
-     *     path="rest/api/cards/column/{id_column}"
-     * )
-     *
-     * @param $id_column
-     * @return JsonResponse
-     */
-    public function getColumnAction($id_column) {
-        $entityManager = $this->getDoctrine()->getManager();
-
-        $column = $entityManager->getRepository(Column::class)->find((int) $id_column);
-
-        $cards = array();
-//        $cards = $column->getCards();
-//        $cards = $entityManager->getRepository(Card::class)->findBy(array('id_column' => $id_column));
-
-        $response = array();
-        if (!empty($cards)) {
-            foreach ($cards as $card) {
-                $response[] = array(
-                    'id' => $card->getId(),
-                    'content' => $card->getContent()
-                );
-            }
-        }
-
-        return new JsonResponse($response);
     }
 }

@@ -27,9 +27,10 @@ class Card
     private $content;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\ManyToOne(targetEntity="App\Entity\Column", inversedBy="cards")
+     * @ORM\JoinColumn(nullable=true)
      */
-    private $id_column;
+    private $boardColumn;
 
     public function getId(): ?int
     {
@@ -60,14 +61,14 @@ class Card
         return $this;
     }
 
-    public function getIdColumn(): ?string
+    public function getBoardColumn(): ?Column
     {
-        return $this->id_column;
+        return $this->boardColumn;
     }
 
-    public function setIdColumn(string $id_column): self
+    public function setBoardColumn(?Column $boardColumn): self
     {
-        $this->id_column = $id_column;
+        $this->boardColumn = $boardColumn;
 
         return $this;
     }
