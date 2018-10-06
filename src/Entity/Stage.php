@@ -7,9 +7,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\ColumnRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\StageRepository")
  */
-class Column
+class Stage
 {
     /**
      * @ORM\Id()
@@ -24,19 +24,18 @@ class Column
     private $title;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Board", inversedBy="columns")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Board", inversedBy="stages")
      * @ORM\JoinColumn(nullable=false)
      */
     private $board;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Card", mappedBy="boardColumn")
+     * @ORM\OneToMany(targetEntity="App\Entity\Card", mappedBy="stage")
      */
     private $cards;
 
     public function __construct()
     {
-        $this->board = new ArrayCollection();
         $this->cards = new ArrayCollection();
     }
 
@@ -81,7 +80,7 @@ class Column
     {
         if (!$this->cards->contains($card)) {
             $this->cards[] = $card;
-            $card->setBoardColumn($this);
+            $card->setStage($this);
         }
 
         return $this;
@@ -92,8 +91,8 @@ class Column
         if ($this->cards->contains($card)) {
             $this->cards->removeElement($card);
             // set the owning side to null (unless already changed)
-            if ($card->getBoardColumn() === $this) {
-                $card->setBoardColumn(null);
+            if ($card->getStage() === $this) {
+                $card->setStage(null);
             }
         }
 

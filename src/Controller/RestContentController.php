@@ -3,20 +3,19 @@
 namespace App\Controller;
 
 use App\Entity\Card;
-use App\Entity\Column;
+use App\Entity\Stage;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
-use FOS\RestBundle\Routing\ClassResourceInterface;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 
 class RestContentController extends FOSRestController
 {
-//    public function postAction(Request $request) {
-//        return new JsonResponse(var_export($request->request->get('title'), true));
-//    }
-
     /**
      * @Rest\Post(
      *     path="rest/api/cards/add"
@@ -25,24 +24,38 @@ class RestContentController extends FOSRestController
      * @param Request $request
      * @return JsonResponse
      */
-    public function postAddAction(Request $request) {
+    public function AddAction(Request $request) {
         $entityManager = $this->getDoctrine()->getManager();
 
-        $title = $request->request->get('title', '');
-        $content = $request->request->get('content', '');
-        $id_column = $request->request->get('idColumn', '');
+        try {
+            $title = $request->request->get('title', '');
+            $content = $request->request->get('content', '');
+            $idStage = $request->request->get('idColumn', '');
 
-        $card = new Card();
-        $card->setTitle($title);
-        $card->setContent($content);
-        $card->setIdColumn($id_column);
+            $card = new Card();
+            $card->setTitle($title);
+            $card->setContent($content);
 
-        $entityManager->persist($card);
-        $entityManager->flush();
+            $stage = $entityManager->getRepository(Stage::class)->find($idStage);
+            $card->setStage($stage);
 
-        $response = 'success!';
+            $entityManager->persist($card);
+            $entityManager->flush();
 
-        return new JsonResponse($response);
+            $response = array(
+                'id' => $card->getId(),
+            );
+
+            $jsonResponse = new JsonResponse($response);
+        } catch (\Exception $e) {
+            $response = array(
+                'error' => $e->getMessage(),
+            );
+
+            $jsonResponse = new JsonResponse($response);
+        }
+
+        return $jsonResponse;
     }
 
     /**
@@ -53,31 +66,42 @@ class RestContentController extends FOSRestController
      * @param Request $request
      * @return JsonResponse
      */
-    public function postUpdateAction(Request $request) {
+    public function UpdateAction(Request $request) {
         $entityManager = $this->getDoctrine()->getManager();
 
-        $id = $request->request->get('idTicket', '');
-        $title = $request->request->get('title', '');
-        $content = $request->request->get('content', '');
-        $id_column = $request->request->get('idColumn', '');
+        try {
+            $id = $request->request->get('idTicket', '');
+            $title = $request->request->get('title', '');
+            $content = $request->request->get('content', '');
+            $idStage = $request->request->get('idColumn', '');
 
-        $card = $entityManager->getRepository(Card::class)->findOneBy(array('id' => $id));
+            $card = $entityManager->getRepository(Card::class)->findOneBy(array('id' => $id));
 
-        if (!empty($card)) {
-            $card->setTitle($title);
-            $card->setContent($content);
-            $card->setIdColumn($id_column);
+            if (!empty($card)) {
+                $card->setTitle($title);
+                $card->setContent($content);
 
-            $entityManager->persist($card);
-            $entityManager->flush();
+                $stage = $entityManager->getRepository(Stage::class)->find($idStage);
+                $card->setStage($stage);
 
-            $response = 'success!';
-        } else {
-            $response = 'not found!';
+                $entityManager->persist($card);
+                $entityManager->flush();
+
+                $response = 'success!';
+            } else {
+                $response = 'not found!';
+            }
+
+            $jsonResponse = new JsonResponse($response);
+        } catch (\Exception $e) {
+            $response = array(
+                'error' => $e->getMessage(),
+            );
+
+            $jsonResponse = new JsonResponse($response);
         }
 
-
-        return new JsonResponse($response);
+        return $jsonResponse;
     }
 
     /**
@@ -105,22 +129,37 @@ class RestContentController extends FOSRestController
     public function getColumnAction($id_column) {
         $entityManager = $this->getDoctrine()->getManager();
 
-        $column = $entityManager->getRepository(Column::class)->find((int) $id_column);
+        try {
+            $stage = $entityManager->getRepository(Stage::class)->find($id_column);
+            if (empty($stage)) {
+                throw new \Exception('there is no stage!');
+            }
 
-        $cards = array();
-//        $cards = $column->getCards();
-//        $cards = $entityManager->getRepository(Card::class)->findBy(array('id_column' => $id_column));
+            $cards = $stage->getCards();
 
-        $response = array();
-        if (!empty($cards)) {
+            if (empty($cards)) {
+                throw new \Exception('there is no cards!');
+            }
+
+            $response = array();
             foreach ($cards as $card) {
                 $response[] = array(
                     'id' => $card->getId(),
                     'content' => $card->getContent()
                 );
             }
+
+            $jsonResponse = new JsonResponse($response);
+        } catch (\Exception $e) {
+            $response = array(
+                'error' => $e->getMessage(),
+                'arg' => $id_column
+            );
+
+            $jsonResponse = new JsonResponse($response);
+            $jsonResponse->setStatusCode('200');
         }
 
-        return new JsonResponse($response);
+        return $jsonResponse;
     }
 }

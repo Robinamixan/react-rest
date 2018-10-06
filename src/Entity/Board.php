@@ -24,13 +24,13 @@ class Board
     private $title;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Column", mappedBy="board")
+     * @ORM\OneToMany(targetEntity="App\Entity\Stage", mappedBy="board")
      */
-    private $columns;
+    private $stages;
 
     public function __construct()
     {
-        $this->columns = new ArrayCollection();
+        $this->stages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -51,30 +51,30 @@ class Board
     }
 
     /**
-     * @return Collection|Column[]
+     * @return Collection|Stage[]
      */
-    public function getColumns(): Collection
+    public function getStages(): Collection
     {
-        return $this->columns;
+        return $this->stages;
     }
 
-    public function addColumn(Column $column): self
+    public function addStage(Stage $stage): self
     {
-        if (!$this->columns->contains($column)) {
-            $this->columns[] = $column;
-            $column->setBoard($this);
+        if (!$this->stages->contains($stage)) {
+            $this->stages[] = $stage;
+            $stage->setBoard($this);
         }
 
         return $this;
     }
 
-    public function removeColumn(Column $column): self
+    public function removeStage(Stage $stage): self
     {
-        if ($this->columns->contains($column)) {
-            $this->columns->removeElement($column);
+        if ($this->stages->contains($stage)) {
+            $this->stages->removeElement($stage);
             // set the owning side to null (unless already changed)
-            if ($column->getBoard() === $this) {
-                $column->setBoard(null);
+            if ($stage->getBoard() === $this) {
+                $stage->setBoard(null);
             }
         }
 
