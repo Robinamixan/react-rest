@@ -70,19 +70,26 @@ class RestContentController extends FOSRestController
         $entityManager = $this->getDoctrine()->getManager();
 
         try {
-            $id = $request->request->get('idTicket', '');
-            $title = $request->request->get('title', '');
-            $content = $request->request->get('content', '');
-            $idStage = $request->request->get('idColumn', '');
+            $id = $request->request->get('idTicket');
+            $title = $request->request->get('title');
+            $content = $request->request->get('content');
+            $idStage = $request->request->get('idColumn');
 
             $card = $entityManager->getRepository(Card::class)->findOneBy(array('id' => $id));
 
             if (!empty($card)) {
-                $card->setTitle($title);
-                $card->setContent($content);
+                if (!is_null($title)) {
+                    $card->setTitle($title);
+                }
 
-                $stage = $entityManager->getRepository(Stage::class)->find($idStage);
-                $card->setStage($stage);
+                if (!is_null($content)) {
+                    $card->setContent($content);
+                }
+
+                if (!is_null($idStage)) {
+                    $stage = $entityManager->getRepository(Stage::class)->find($idStage);
+                    $card->setStage($stage);
+                }
 
                 $entityManager->persist($card);
                 $entityManager->flush();
