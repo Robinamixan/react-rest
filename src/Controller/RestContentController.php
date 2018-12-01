@@ -127,7 +127,7 @@ class RestContentController extends FOSRestController
 
     /**
      * @Rest\Get(
-     *     path="rest/api/cards/column/{id_column}"
+     *     path="rest/api/column/{id_column}/cards"
      * )
      *
      * @param $id_column
@@ -152,7 +152,8 @@ class RestContentController extends FOSRestController
             foreach ($cards as $card) {
                 $response[] = array(
                     'id' => $card->getId(),
-                    'content' => $card->getContent()
+                    'title' => $card->getTitle(),
+                    'content' => $card->getContent(),
                 );
             }
 

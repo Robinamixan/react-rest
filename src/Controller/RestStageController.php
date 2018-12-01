@@ -23,21 +23,33 @@ class RestStageController extends FOSRestController
     public function AddAction(Request $request) {
         $entityManager = $this->getDoctrine()->getManager();
 
-        $title = $request->request->get('title', '');
-        $boardId = $request->request->get('board_id', '');
+        try {
+            $title = $request->request->get('title', '');
+            $boardId = $request->request->get('idBoard', '');
 
-        $stage = new Stage();
-        $stage->setTitle($title);
+            $stage = new Stage();
+            $stage->setTitle($title);
 
-        $board = $entityManager->getRepository(Board::class)->find($boardId);
-        $stage->setBoard($board);
+            $board = $entityManager->getRepository(Board::class)->find($boardId);
+            $stage->setBoard($board);
 
-        $entityManager->persist($stage);
-        $entityManager->flush();
+            $entityManager->persist($stage);
+            $entityManager->flush();
 
-        $response = 'success!';
+            $response = 'success!';
 
-        return new JsonResponse($response);
+            $jsonResponse = new JsonResponse($response);
+        } catch (\Exception $e) {
+            $response = array(
+                'error' => $e->getMessage(),
+                'arg' => ''
+            );
+
+            $jsonResponse = new JsonResponse($response);
+            $jsonResponse->setStatusCode('200');
+        }
+
+        return $jsonResponse;
     }
 
     /**
@@ -85,9 +97,30 @@ class RestStageController extends FOSRestController
     public function getAction() {
         $entityManager = $this->getDoctrine()->getManager();
 
-        $cards = $entityManager->getRepository(Stage::class)->findAll();
-        $result = $cards;
+        try {
+            $stages = $entityManager->getRepository(Stage::class)->findAll();
+            if (empty($stages)) {
+                throw new \Exception('there are no stages!');
+            }
 
-        return new JsonResponse($result);
+            $response = array();
+            foreach ($stages as $stage) {
+                $response[] = array(
+                    'id' => $stage->getId(),
+                    'title' => $stage->getTitle(),
+                );
+            }
+
+            $jsonResponse = new JsonResponse($response);
+        } catch (\Exception $e) {
+            $response = array(
+                'error' => $e->getMessage(),
+            );
+
+            $jsonResponse = new JsonResponse($response);
+            $jsonResponse->setStatusCode('200');
+        }
+
+        return $jsonResponse;
     }
 }
