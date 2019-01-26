@@ -58,6 +58,7 @@ class RestContentController extends FOSRestController
             );
 
             $jsonResponse = new JsonResponse($response);
+            $jsonResponse->setStatusCode('400');
         }
 
         return $jsonResponse;
@@ -111,6 +112,7 @@ class RestContentController extends FOSRestController
             );
 
             $jsonResponse = new JsonResponse($response);
+            $jsonResponse->setStatusCode('400');
         }
 
         return $jsonResponse;
@@ -194,6 +196,7 @@ class RestContentController extends FOSRestController
             );
 
             $jsonResponse = new JsonResponse($response);
+            $jsonResponse->setStatusCode('400');
         }
 
         return $jsonResponse;
@@ -231,6 +234,7 @@ class RestContentController extends FOSRestController
             );
 
             $jsonResponse = new JsonResponse($response);
+            $jsonResponse->setStatusCode('400');
         }
 
         return $jsonResponse;
@@ -295,7 +299,7 @@ class RestContentController extends FOSRestController
             );
 
             $jsonResponse = new JsonResponse($response);
-            $jsonResponse->setStatusCode('200');
+            $jsonResponse->setStatusCode('400');
         }
 
         return $jsonResponse;
