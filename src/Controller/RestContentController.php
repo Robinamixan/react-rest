@@ -141,28 +141,46 @@ class RestContentController extends FOSRestController
             if (!empty($card)) {
                 switch ($actionType) {
                     case WEIGHT_CHANGE: {
-                        if ($action === WEIGHT_MOVE_UP) {
-                            $newWeight = $card->getWeight() - 1;
-                        }elseif ($action === WEIGHT_MOVE_DOWN) {
-                            $newWeight = $card->getWeight() + 1;
-                        }
+                        $stageCards = $stage->getCards();
 
-                        $stagesCards = $stage->getCards();
+                        $firstCard = $card;
+                        $firstWeight = $card->getWeight();
 
-                        $firstWeight = $newWeight;
-                        $secondWeight = $card->getWeight();
-
-                        $firstCard = null;
                         $secondCard = null;
+                        $secondWeight = null;
 
-                        foreach ($stagesCards as $index => $card) {
-                            $cardWeight = $card->getWeight();
-                            if ($cardWeight === $firstWeight) {
-                                $firstCard = $card;
-                            }
+                        $weights = array();
+                        foreach ($stageCards as $stageCard) {
+                            $weights[$stageCard->getWeight()] = array(
+                                'id' => $stageCard->getId(),
+                                'weight' => $stageCard->getWeight(),
+                            );
+                        }
+                        ksort($weights);
+                        $weights = array_values($weights);
 
-                            if ($cardWeight === $secondWeight) {
-                                $secondCard = $card;
+                        foreach ($weights as $index => $weight) {
+                            if ($weight['weight'] === (int)$firstWeight) {
+                                $counter = $index;
+                                while (isset($weights[$counter])) {
+                                    if ($action === WEIGHT_MOVE_UP) {
+                                        if ($weights[$counter]['weight'] < $firstWeight) {
+                                            $secondWeight = $weights[$counter]['weight'];
+                                            $secondCard = $entityManager->getRepository(Card::class)->find($weights[$counter]['id']);
+                                            break(2);
+                                        } else {
+                                            $counter--;
+                                        }
+                                    } else {
+                                        if ($weights[$counter]['weight'] > $firstWeight) {
+                                            $secondWeight = $weights[$counter]['weight'];
+                                            $secondCard = $entityManager->getRepository(Card::class)->find($weights[$counter]['id']);
+                                            break(2);
+                                        } else {
+                                            $counter++;
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -172,12 +190,20 @@ class RestContentController extends FOSRestController
 
                             $entityManager->persist($firstCard);
                             $entityManager->persist($secondCard);
+                        } else {
+                            throw new \Exception(json_encode($weights));
                         }
 
                         break;
                     }
                     case STAGE_CHANGE: {
+                        $newStageId = $action;
 
+                        $newStage = $entityManager->getRepository(Stage::class)->find($newStageId);
+
+                        $card->setStage($newStage);
+                        $card->setWeight(0);
+                        $entityManager->persist($card);
                         break;
                     }
                 }
