@@ -8,10 +8,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
+
+define('WEIGHT_CHANGE', '1');
+define('WEIGHT_MOVE_UP', 'up');
+define('WEIGHT_MOVE_DOWN', 'down');
+
+define('STAGE_CHANGE', '2');
 
 
 class RestContentController extends FOSRestController
@@ -38,6 +40,9 @@ class RestContentController extends FOSRestController
 
             $stage = $entityManager->getRepository(Stage::class)->find($idStage);
             $card->setStage($stage);
+
+            $weight = $stage->getCardsMaxWeight() + 1;
+            $card->setWeight($weight);
 
             $entityManager->persist($card);
             $entityManager->flush();
@@ -112,6 +117,126 @@ class RestContentController extends FOSRestController
     }
 
     /**
+     * @Rest\Post(
+     *     path="rest/api/cards/update/position"
+     * )
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function UpdatePositionAction(Request $request) {
+        $entityManager = $this->getDoctrine()->getManager();
+
+        try {
+            $id = $request->request->get('idTicket');
+            $actionType = $request->request->get('actionType');
+            $action = $request->request->get('action');
+            $idStage = $request->request->get('idColumn');
+
+            $card = $entityManager->getRepository(Card::class)->findOneBy(array('id' => $id));
+            $stage = $entityManager->getRepository(Stage::class)->find($idStage);
+
+            if (!empty($card)) {
+                switch ($actionType) {
+                    case WEIGHT_CHANGE: {
+                        if ($action === WEIGHT_MOVE_UP) {
+                            $newWeight = $card->getWeight() - 1;
+                        }elseif ($action === WEIGHT_MOVE_DOWN) {
+                            $newWeight = $card->getWeight() + 1;
+                        }
+
+                        $stagesCards = $stage->getCards();
+
+                        $firstWeight = $newWeight;
+                        $secondWeight = $card->getWeight();
+
+                        $firstCard = null;
+                        $secondCard = null;
+
+                        foreach ($stagesCards as $index => $card) {
+                            $cardWeight = $card->getWeight();
+                            if ($cardWeight === $firstWeight) {
+                                $firstCard = $card;
+                            }
+
+                            if ($cardWeight === $secondWeight) {
+                                $secondCard = $card;
+                            }
+                        }
+
+                        if (!empty($firstCard) && !empty($secondCard)) {
+                            $firstCard->setWeight($secondWeight);
+                            $secondCard->setWeight($firstWeight);
+
+                            $entityManager->persist($firstCard);
+                            $entityManager->persist($secondCard);
+                        }
+
+                        break;
+                    }
+                    case STAGE_CHANGE: {
+
+                        break;
+                    }
+                }
+
+                $entityManager->flush();
+
+                $response = 'success!';
+            } else {
+                $response = 'not found!';
+            }
+
+            $jsonResponse = new JsonResponse($response);
+        } catch (\Exception $e) {
+            $response = array(
+                'error' => $e->getMessage(),
+            );
+
+            $jsonResponse = new JsonResponse($response);
+        }
+
+        return $jsonResponse;
+    }
+
+    /**
+     * @Rest\Post(
+     *     path="rest/api/cards/delete"
+     * )
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function DeleteAction(Request $request) {
+        $entityManager = $this->getDoctrine()->getManager();
+
+        try {
+            $id = $request->request->get('idTicket');
+
+            $card = $entityManager->getRepository(Card::class)->findOneBy(array('id' => $id));
+
+            if (!empty($card)) {
+                $entityManager->remove($card);
+                $entityManager->flush();
+
+                $response = 'success!';
+            } else {
+                $response = 'not found!';
+            }
+
+            $jsonResponse = new JsonResponse($response);
+        } catch (\Exception $e) {
+            $response = array(
+                'error' => $e->getMessage(),
+            );
+
+            $jsonResponse = new JsonResponse($response);
+        }
+
+        return $jsonResponse;
+    }
+
+    /**
      * @Rest\Get(
      *     path="rest/api/cards"
      * )
@@ -150,12 +275,17 @@ class RestContentController extends FOSRestController
 
             $response = array();
             foreach ($cards as $card) {
-                $response[] = array(
+                $weight = $card->getWeight();
+                $response[$weight] = array(
                     'id' => $card->getId(),
                     'title' => $card->getTitle(),
                     'content' => $card->getContent(),
+                    'weight' => $card->getWeight(),
                 );
             }
+
+            ksort($response);
+            $response = array_values($response);
 
             $jsonResponse = new JsonResponse($response);
         } catch (\Exception $e) {
