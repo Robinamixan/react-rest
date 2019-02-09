@@ -48,6 +48,7 @@ class RestStageController extends FOSRestController
             $jsonResponse = new JsonResponse($response);
             $jsonResponse->setStatusCode('200');
         }
+        $jsonResponse->headers->set('Access-Control-Allow-Origin', '*');
 
         return $jsonResponse;
     }
@@ -84,6 +85,7 @@ class RestStageController extends FOSRestController
 //        }
 
         $response = 'empty function!';
+        $response->headers->set('Access-Control-Allow-Origin', '*');
 
 
         return new JsonResponse($response);
@@ -120,6 +122,8 @@ class RestStageController extends FOSRestController
             $jsonResponse = new JsonResponse($response);
             $jsonResponse->setStatusCode('200');
         }
+
+        $jsonResponse->headers->set('Access-Control-Allow-Origin', '*');
 
         return $jsonResponse;
     }

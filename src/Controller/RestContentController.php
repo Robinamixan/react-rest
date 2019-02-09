@@ -60,6 +60,7 @@ class RestContentController extends FOSRestController
             $jsonResponse = new JsonResponse($response);
             $jsonResponse->setStatusCode('400');
         }
+        $jsonResponse->headers->set('Access-Control-Allow-Origin', '*');
 
         return $jsonResponse;
     }
@@ -114,6 +115,7 @@ class RestContentController extends FOSRestController
             $jsonResponse = new JsonResponse($response);
             $jsonResponse->setStatusCode('400');
         }
+        $jsonResponse->headers->set('Access-Control-Allow-Origin', '*');
 
         return $jsonResponse;
     }
@@ -201,8 +203,18 @@ class RestContentController extends FOSRestController
 
                         $newStage = $entityManager->getRepository(Stage::class)->find($newStageId);
 
+                        $stageCards = $newStage->getCards();
+
+                        foreach ($stageCards as $stageCard) {
+                            $weight = $stageCard->getWeight();
+                            $stageCard->setWeight($weight + 1);
+
+                            $entityManager->persist($stageCard);
+                        }
+
                         $card->setStage($newStage);
                         $card->setWeight(0);
+
                         $entityManager->persist($card);
                         break;
                     }
@@ -224,6 +236,7 @@ class RestContentController extends FOSRestController
             $jsonResponse = new JsonResponse($response);
             $jsonResponse->setStatusCode('400');
         }
+        $jsonResponse->headers->set('Access-Control-Allow-Origin', '*');
 
         return $jsonResponse;
     }
@@ -262,6 +275,7 @@ class RestContentController extends FOSRestController
             $jsonResponse = new JsonResponse($response);
             $jsonResponse->setStatusCode('400');
         }
+        $jsonResponse->headers->set('Access-Control-Allow-Origin', '*');
 
         return $jsonResponse;
     }
@@ -327,6 +341,7 @@ class RestContentController extends FOSRestController
             $jsonResponse = new JsonResponse($response);
             $jsonResponse->setStatusCode('400');
         }
+        $jsonResponse->headers->set('Access-Control-Allow-Origin', '*');
 
         return $jsonResponse;
     }

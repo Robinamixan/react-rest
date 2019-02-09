@@ -1,0 +1,8 @@
+security:
+  firewalls:
+    dev:
+      http_basic: ~
+    login:
+      http_basic: ~
+    api_admin:
+      http_basic: ~
