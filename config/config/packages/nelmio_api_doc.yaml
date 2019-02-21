@@ -1,0 +1,44 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Venue App
+            description: The venue service provides information on product locations
+            version: 0.0.1
+        responses:
+            InvalidRequestError:
+                description: "If request is invalid return 400 status code with error message."
+                schema:
+                    $ref: "#/definitions/StandardError"
+            NotFoundError:
+                description: "If nothing was found return 404 status code with error message."
+                schema:
+                    $ref: "#/definitions/StandardError"
+            InternalServerError:
+                description: "If service has internal error return 500 status code with error message."
+                schema:
+                    $ref: "#/definitions/StandardError"
+            ServiceUnavailableError:
+                description: "If service is not available return 503 status code with error message."
+                schema:
+                    $ref: "#/definitions/StandardError"
+        definitions:
+            StandardError:
+                type: "object"
+                allOf:
+                    - $ref: "#/definitions/StandardResponse"
+                    - properties:
+                          response:
+                              type: string
+    models:
+        names:
+            - { alias: StandardResponse, type: Encore\StandardPackage\DataTransferObjects\Standard\StandardResponse }
+    areas: # to filter documented areas
+        default:
+            path_patterns:
+                - ^/api(?!/doc.*$)
+                - ^/images(?!/doc.*$)
+        v1:
+            path_patterns:
+                - ^/api/v1(?!/doc.*$)
+                - ^/api/login
+                - ^/images(?!/doc.*$)

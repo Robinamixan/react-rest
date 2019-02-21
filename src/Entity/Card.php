@@ -22,7 +22,7 @@ class Card
     private $title;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=580, nullable=true)
      */
     private $content;
 
@@ -31,6 +31,11 @@ class Card
      * @ORM\JoinColumn(nullable=false)
      */
     private $stage;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $weight;
 
     public function getId(): ?int
     {
@@ -69,6 +74,18 @@ class Card
     public function setStage(?Stage $stage): self
     {
         $this->stage = $stage;
+
+        return $this;
+    }
+
+    public function getWeight(): ?int
+    {
+        return $this->weight;
+    }
+
+    public function setWeight(?int $weight): self
+    {
+        $this->weight = $weight;
 
         return $this;
     }
