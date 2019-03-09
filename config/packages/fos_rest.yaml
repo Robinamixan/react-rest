@@ -1,17 +1,58 @@
 # Read the documentation: https://symfony.com/doc/master/bundles/FOSRestBundle/index.html
 fos_rest:
+    # Sets the ParamFetcher instance as a request attribute configured for the matched controller.
+    param_fetcher_listener: true
+    view:
+        # Force the use of response to render view, for example when you directly return an object at the end of your action.
+        view_response_listener: force
+        # Mime types expected.
+        mime_types:
+            json: ['application/json', 'application/hal+json']
+        # Formats supported by the serializer.
+        formats:
+            json: true
+        # HTTP response status code for failed validation.
+        failed_validation: HTTP_BAD_REQUEST
+    format_listener:
+        rules:
+            - { path: '^/api', prefer_extension: true, fallback_format: json, priorities: [ json ] }
+            - { path: '^/', stop: true }
+    # Add the Allow HTTP header to each request.
+    allowed_methods_listener: true
+    # Makes it possible to decode the contents of a request in order to populate the "request" parameter bag of the Request.
+    body_listener:
+        array_normalizer: fos_rest.normalizer.camel_keys
+    # Makes it possible to deserialize the request body into an object.
+    body_converter:
+        # Enable ParamConverter
+        enabled: true
+        # Active the validation of the param converted
+        validate: true
+        validation_errors_argument: validationErrors # This is the default value
+
+    # Not include the format in routes generated.
     routing_loader:
+        default_format: json
         include_format: false
-#    param_fetcher_listener:  true
-#    allowed_methods_listener:  true
-#    routing_loader: true
-#    view:
-#        view_response_listener:  true
+    # Security Exception Listener. If the user isn't authenticated, the API will return 403 (Access Denied).
+    access_denied_listener:
+        json: true
+    serializer:
+        # Display null value keys
+        serialize_null: true
+
+    # Map Exception classes to HTTP response status codes and decide if you display or not for the exception.
+    exception:
+        exception_controller: 'fos_rest.exception.controller:showAction'
+        codes:
+            'Symfony\Component\Routing\Exception\ResourceNotFoundException': HTTP_NOT_FOUND
+        messages:
+            'Symfony\Component\Routing\Exception\ResourceNotFoundException': true
+            'Symfony\Component\HttpKernel\Exception\HttpException': true
+            'Symfony\Component\HttpKernel\Exception\NotFoundHttpException': true
+            'Symfony\Component\HttpKernel\Exception\BadRequestHttpException': true
 #    exception:
 #        codes:
 #            App\Exception\MyException: 403
 #        messages:
 #            App\Exception\MyException: Forbidden area.
-#    format_listener:
-#        rules:
-#            - { path: ^/api, prefer_extension: true, fallback_format: json, priorities: [ json, html ] }

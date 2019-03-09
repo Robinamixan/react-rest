@@ -2,8 +2,6 @@
 FROM php:7.2-fpm
 
 ARG TIMEZONE
-ARG COMPOSER_CONSUMER_KEY
-ARG COMPOSER_SECRET_KEY
 # issues with php-soap on php 7 fpm
 RUN rm /etc/apt/preferences.d/no-debian-php
 
@@ -32,8 +30,6 @@ RUN "date"
 
 # Type docker-php-ext-install to see available extensions
 RUN docker-php-ext-install pdo pdo_mysql
-
-RUN echo "{\"bitbucket-oauth\": {\"bitbucket.org\": {\"consumer-key\": \"${COMPOSER_CONSUMER_KEY}\",\"consumer-secret\": \"${COMPOSER_SECRET_KEY}\"}}}" >> /root/.composer/auth.json
 
 # install xdebug
 RUN pecl install xdebug

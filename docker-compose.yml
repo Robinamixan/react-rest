@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: ./Docker/php/Dockerfile
+      args:
+        - TIMEZONE=Europe/London
+    env_file:
+      - .env
+    environment:
+      XDEBUG_CONFIG: remote_host=${IP_ADDRESS}
+    expose:
+      - 9000
+    volumes:
+      - ./:/var/www/html/
+    networks:
+      - quick-search
+  nginx:
+    build:
+      context: ./Docker/nginx
+    volumes:
+      - ./public:/var/www/html/public
+    ports:
+      - 8000:80
+    networks:
+      - quick-search
+  mysql:
+    build:
+      context: .
+      dockerfile: ./Docker/mysql/Dockerfile
+    ports:
+    - 8010:3306
+    env_file:
+      - .env
+    volumes:
+      - ./Docker/mysql:/etc/mysql/conf.d
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    networks:
+      - quick-search
+networks:
+  quick-search:
+    external: true
