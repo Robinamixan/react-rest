@@ -19,7 +19,9 @@ class StatusController extends FOSRestController
         $data = [
             'status' => 'ok',
         ];
+
         $view = $this->view($data, 200);
+
         return $this->handleView($view);
     }
 }

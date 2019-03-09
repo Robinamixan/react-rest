@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as JMS;
 
@@ -14,6 +13,7 @@ class Stage
 {
     /**
      * @JMS\Type("string")
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer", nullable=false)
@@ -22,6 +22,7 @@ class Stage
 
     /**
      * @JMS\Type("string")
+     *
      * @ORM\Column(type="string", length=255)
      */
     private $title;
@@ -56,7 +57,7 @@ class Stage
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getTitle(): ?string
     {
@@ -65,6 +66,7 @@ class Stage
 
     /**
      * @param string $title
+     *
      * @return Stage
      */
     public function setTitle(string $title): self
@@ -95,11 +97,11 @@ class Stage
     }
 
     /**
-     * @return Collection|Card[]
+     * @return Card[]
      */
-    public function getCards(): Collection
+    public function getCards(): array
     {
-        return $this->cards;
+        return $this->cards->toArray();
     }
 
     /**

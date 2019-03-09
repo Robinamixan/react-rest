@@ -4,10 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Card;
 use App\Entity\Stage;
+use App\Repository\StageRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 define('WEIGHT_CHANGE', '1');
 define('WEIGHT_MOVE_UP', 'up');
@@ -15,18 +17,20 @@ define('WEIGHT_MOVE_DOWN', 'down');
 
 define('STAGE_CHANGE', '2');
 
-
-class RestContentController extends FOSRestController
+/**
+ * @Rest\Route("/api/v1")
+ */
+class CardController extends FOSRestController
 {
     /**
-     * @Rest\Post(
-     *     path="rest/api/cards/add"
-     * )
+     * @Rest\Post(path="/cards/add")
      *
      * @param Request $request
+     *
      * @return JsonResponse
      */
-    public function AddAction(Request $request) {
+    public function AddAction(Request $request)
+    {
         $entityManager = $this->getDoctrine()->getManager();
 
         try {
@@ -47,15 +51,15 @@ class RestContentController extends FOSRestController
             $entityManager->persist($card);
             $entityManager->flush();
 
-            $response = array(
+            $response = [
                 'id' => $card->getId(),
-            );
+            ];
 
             $jsonResponse = new JsonResponse($response);
         } catch (\Exception $e) {
-            $response = array(
+            $response = [
                 'error' => $e->getMessage(),
-            );
+            ];
 
             $jsonResponse = new JsonResponse($response);
             $jsonResponse->setStatusCode('400');
@@ -71,9 +75,11 @@ class RestContentController extends FOSRestController
      * )
      *
      * @param Request $request
+     *
      * @return JsonResponse
      */
-    public function UpdateAction(Request $request) {
+    public function UpdateAction(Request $request)
+    {
         $entityManager = $this->getDoctrine()->getManager();
 
         try {
@@ -82,7 +88,7 @@ class RestContentController extends FOSRestController
             $content = $request->request->get('content');
             $idStage = $request->request->get('idColumn');
 
-            $card = $entityManager->getRepository(Card::class)->findOneBy(array('id' => $id));
+            $card = $entityManager->getRepository(Card::class)->findOneBy(['id' => $id]);
 
             if (!empty($card)) {
                 if (!is_null($title)) {
@@ -108,9 +114,9 @@ class RestContentController extends FOSRestController
 
             $jsonResponse = new JsonResponse($response);
         } catch (\Exception $e) {
-            $response = array(
+            $response = [
                 'error' => $e->getMessage(),
-            );
+            ];
 
             $jsonResponse = new JsonResponse($response);
             $jsonResponse->setStatusCode('400');
@@ -126,9 +132,11 @@ class RestContentController extends FOSRestController
      * )
      *
      * @param Request $request
+     *
      * @return JsonResponse
      */
-    public function UpdatePositionAction(Request $request) {
+    public function UpdatePositionAction(Request $request)
+    {
         $entityManager = $this->getDoctrine()->getManager();
 
         try {
@@ -137,12 +145,12 @@ class RestContentController extends FOSRestController
             $action = $request->request->get('action');
             $idStage = $request->request->get('idColumn');
 
-            $card = $entityManager->getRepository(Card::class)->findOneBy(array('id' => $id));
+            $card = $entityManager->getRepository(Card::class)->findOneBy(['id' => $id]);
             $stage = $entityManager->getRepository(Stage::class)->find($idStage);
 
             if (!empty($card)) {
                 switch ($actionType) {
-                    case WEIGHT_CHANGE: {
+                    case WEIGHT_CHANGE:
                         $stageCards = $stage->getCards();
 
                         $firstCard = $card;
@@ -151,35 +159,35 @@ class RestContentController extends FOSRestController
                         $secondCard = null;
                         $secondWeight = null;
 
-                        $weights = array();
+                        $weights = [];
                         foreach ($stageCards as $stageCard) {
-                            $weights[$stageCard->getWeight()] = array(
+                            $weights[$stageCard->getWeight()] = [
                                 'id' => $stageCard->getId(),
                                 'weight' => $stageCard->getWeight(),
-                            );
+                            ];
                         }
                         ksort($weights);
                         $weights = array_values($weights);
 
                         foreach ($weights as $index => $weight) {
-                            if ($weight['weight'] === (int)$firstWeight) {
+                            if ($weight['weight'] === (int) $firstWeight) {
                                 $counter = $index;
                                 while (isset($weights[$counter])) {
                                     if ($action === WEIGHT_MOVE_UP) {
                                         if ($weights[$counter]['weight'] < $firstWeight) {
                                             $secondWeight = $weights[$counter]['weight'];
                                             $secondCard = $entityManager->getRepository(Card::class)->find($weights[$counter]['id']);
-                                            break(2);
+                                            break 2;
                                         } else {
-                                            $counter--;
+                                            --$counter;
                                         }
                                     } else {
                                         if ($weights[$counter]['weight'] > $firstWeight) {
                                             $secondWeight = $weights[$counter]['weight'];
                                             $secondCard = $entityManager->getRepository(Card::class)->find($weights[$counter]['id']);
-                                            break(2);
+                                            break 2;
                                         } else {
-                                            $counter++;
+                                            ++$counter;
                                         }
                                     }
                                 }
@@ -197,8 +205,8 @@ class RestContentController extends FOSRestController
                         }
 
                         break;
-                    }
-                    case STAGE_CHANGE: {
+
+                    case STAGE_CHANGE:
                         $newStageId = $action;
 
                         $newStage = $entityManager->getRepository(Stage::class)->find($newStageId);
@@ -217,7 +225,6 @@ class RestContentController extends FOSRestController
 
                         $entityManager->persist($card);
                         break;
-                    }
                 }
 
                 $entityManager->flush();
@@ -229,9 +236,9 @@ class RestContentController extends FOSRestController
 
             $jsonResponse = new JsonResponse($response);
         } catch (\Exception $e) {
-            $response = array(
+            $response = [
                 'error' => $e->getMessage(),
-            );
+            ];
 
             $jsonResponse = new JsonResponse($response);
             $jsonResponse->setStatusCode('400');
@@ -247,15 +254,17 @@ class RestContentController extends FOSRestController
      * )
      *
      * @param Request $request
+     *
      * @return JsonResponse
      */
-    public function DeleteAction(Request $request) {
+    public function DeleteAction(Request $request)
+    {
         $entityManager = $this->getDoctrine()->getManager();
 
         try {
             $id = $request->request->get('idTicket');
 
-            $card = $entityManager->getRepository(Card::class)->findOneBy(array('id' => $id));
+            $card = $entityManager->getRepository(Card::class)->findOneBy(['id' => $id]);
 
             if (!empty($card)) {
                 $entityManager->remove($card);
@@ -268,9 +277,9 @@ class RestContentController extends FOSRestController
 
             $jsonResponse = new JsonResponse($response);
         } catch (\Exception $e) {
-            $response = array(
+            $response = [
                 'error' => $e->getMessage(),
-            );
+            ];
 
             $jsonResponse = new JsonResponse($response);
             $jsonResponse->setStatusCode('400');
@@ -281,68 +290,35 @@ class RestContentController extends FOSRestController
     }
 
     /**
-     * @Rest\Get(
-     *     path="rest/api/cards"
-     * )
-     */
-    public function getAction() {
-        $entityManager = $this->getDoctrine()->getManager();
-
-        $cards = $entityManager->getRepository(Card::class)->findAll();
-        $result = $cards;
-
-        return new JsonResponse($result);
-    }
-
-    /**
-     * @Rest\Get(
-     *     path="rest/api/column/{id_column}/cards"
-     * )
+     * @Rest\Get(path="/stages/{id_stage}/cards")
+     * @Rest\View()
      *
-     * @param $id_column
-     * @return JsonResponse
+     * @param Request $request
+     * @param StageRepository $stageRepository
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function getColumnAction($id_column) {
-        $entityManager = $this->getDoctrine()->getManager();
-
-        try {
-            $stage = $entityManager->getRepository(Stage::class)->find($id_column);
-            if (empty($stage)) {
-                throw new \Exception('there is no stage!');
-            }
-
-            $cards = $stage->getCards();
-
-            if (empty($cards)) {
-                throw new \Exception('there is no cards!');
-            }
-
-            $response = array();
-            foreach ($cards as $card) {
-                $weight = $card->getWeight();
-                $response[$weight] = array(
-                    'id' => $card->getId(),
-                    'title' => $card->getTitle(),
-                    'content' => $card->getContent(),
-                    'weight' => $card->getWeight(),
-                );
-            }
-
-            ksort($response);
-            $response = array_values($response);
-
-            $jsonResponse = new JsonResponse($response);
-        } catch (\Exception $e) {
-            $response = array(
-                'error' => $e->getMessage(),
-                'arg' => $id_column
-            );
-
-            $jsonResponse = new JsonResponse($response);
-            $jsonResponse->setStatusCode('400');
+    public function getColumnAction(
+        Request $request,
+        StageRepository $stageRepository
+    ) {
+        $stage = $stageRepository->findOneBy(['id' => $request->get('id_stage')]);
+        if (empty($stage)) {
+            throw new HttpException(204, 'Stage not found');
         }
-        $jsonResponse->headers->set('Access-Control-Allow-Origin', '*');
 
-        return $jsonResponse;
+        $cards = $stage->getCards();
+
+        if (empty($cards)) {
+            throw new HttpException(204, 'Cards not found');
+        }
+
+        usort($cards, function ($a, $b) {
+            return $a->getWeight() - $b->getWeight();
+        });
+
+        $view = $this->view($cards, 200);
+
+        return $this->handleView($view);
     }
 }

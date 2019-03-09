@@ -17,14 +17,14 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class StageController extends FOSRestController
 {
     /**
-     * @Rest\Post(
-     *     path="rest/api/stages/add"
-     * )
+     * @Rest\Post(path="/stages/add")
      *
      * @param Request $request
+     *
      * @return JsonResponse
      */
-    public function AddAction(Request $request) {
+    public function AddAction(Request $request)
+    {
         $entityManager = $this->getDoctrine()->getManager();
 
         try {
@@ -44,10 +44,10 @@ class StageController extends FOSRestController
 
             $jsonResponse = new JsonResponse($response);
         } catch (\Exception $e) {
-            $response = array(
+            $response = [
                 'error' => $e->getMessage(),
-                'arg' => ''
-            );
+                'arg' => '',
+            ];
 
             $jsonResponse = new JsonResponse($response);
             $jsonResponse->setStatusCode('200');
@@ -74,15 +74,8 @@ class StageController extends FOSRestController
             throw new NotFoundHttpException('Stages not found');
         }
 
-        $response = [];
-        foreach ($stages as $stage) {
-            $response[] = [
-                'id' => $stage->getId(),
-                'title' => $stage->getTitle(),
-            ];
-        }
+        $view = $this->view($stages, 200);
 
-        $view = $this->view($response, 200);
         return $this->handleView($view);
     }
 }

@@ -18,6 +18,4 @@ class StageRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Stage::class);
     }
-
-
 }
