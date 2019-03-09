@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 define('WEIGHT_CHANGE', '1');
 define('WEIGHT_MOVE_UP', 'up');
@@ -29,7 +29,7 @@ class CardController extends FOSRestController
      *
      * @return JsonResponse
      */
-    public function AddAction(Request $request)
+    public function addAction(Request $request)
     {
         $entityManager = $this->getDoctrine()->getManager();
 
@@ -78,7 +78,7 @@ class CardController extends FOSRestController
      *
      * @return JsonResponse
      */
-    public function UpdateAction(Request $request)
+    public function updateAction(Request $request)
     {
         $entityManager = $this->getDoctrine()->getManager();
 
@@ -135,7 +135,7 @@ class CardController extends FOSRestController
      *
      * @return JsonResponse
      */
-    public function UpdatePositionAction(Request $request)
+    public function updatePositionAction(Request $request)
     {
         $entityManager = $this->getDoctrine()->getManager();
 
@@ -257,7 +257,7 @@ class CardController extends FOSRestController
      *
      * @return JsonResponse
      */
-    public function DeleteAction(Request $request)
+    public function deleteAction(Request $request)
     {
         $entityManager = $this->getDoctrine()->getManager();
 
@@ -290,7 +290,7 @@ class CardController extends FOSRestController
     }
 
     /**
-     * @Rest\Get(path="/stages/{id_stage}/cards")
+     * @Rest\Get(path="/stages/{stageId}/cards")
      * @Rest\View()
      *
      * @param Request $request
@@ -302,15 +302,14 @@ class CardController extends FOSRestController
         Request $request,
         StageRepository $stageRepository
     ) {
-        $stage = $stageRepository->findOneBy(['id' => $request->get('id_stage')]);
+        $stage = $stageRepository->findOneBy(['id' => $request->get('stageId')]);
         if (empty($stage)) {
-            throw new HttpException(204, 'Stage not found');
+            throw new NotFoundHttpException('Stage not found');
         }
 
         $cards = $stage->getCards();
-
         if (empty($cards)) {
-            throw new HttpException(204, 'Cards not found');
+            throw new NotFoundHttpException('Cards not found');
         }
 
         usort($cards, function ($a, $b) {

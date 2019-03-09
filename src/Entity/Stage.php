@@ -42,9 +42,14 @@ class Stage
 
     /**
      * Stage constructor.
+     *
+     * @param string $title
+     * @param Board $board
      */
-    public function __construct()
+    public function __construct(string $title, Board $board)
     {
+        $this->setTitle($title);
+        $this->setBoard($board);
         $this->cards = new ArrayCollection();
     }
 
