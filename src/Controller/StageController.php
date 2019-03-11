@@ -11,12 +11,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * @Rest\Route("/api/v1")
+ * @Rest\Route("/api/v1/stages")
  */
 class StageController extends FOSRestController
 {
     /**
-     * @Rest\Post(path="/stages/add")
+     * @Rest\Post(path="/add")
      * @Rest\View()
      *
      * @param Request $request
@@ -32,7 +32,7 @@ class StageController extends FOSRestController
     }
 
     /**
-     * @Rest\Get(path="/stages")
+     * @Rest\Get(path="/")
      * @Rest\View()
      *
      * @param StageRepository $stageRepository

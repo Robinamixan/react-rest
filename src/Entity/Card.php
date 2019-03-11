@@ -49,6 +49,22 @@ class Card
     private $weight;
 
     /**
+     * Card constructor.
+     *
+     * @param string $title
+     * @param string $content
+     * @param Stage $stage
+     * @param int $weight
+     */
+    public function __construct(string $title, string $content, Stage $stage, int $weight = 0)
+    {
+        $this->setTitle($title);
+        $this->setContent($content);
+        $this->setStage($stage);
+        $this->setWeight($weight);
+    }
+
+    /**
      * @return int|null
      */
     public function getId(): ?int
