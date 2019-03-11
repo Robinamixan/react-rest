@@ -70,6 +70,19 @@ class CardRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param Card $card
+     * @param int $weight
+     *
+     * @return Card
+     */
+    public function updateWeight(Card $card, int $weight)
+    {
+        $card->setWeight($weight);
+
+        return $this->save($card);
+    }
+
+    /**
      * @param \App\Entity\Card $card
      *
      * @return \App\Entity\Card

@@ -106,7 +106,13 @@ class Stage
      */
     public function getCards(): array
     {
-        return $this->cards->toArray();
+        $cards = $this->cards->toArray();
+
+        usort($cards, function ($a, $b) {
+            return $a->getWeight() - $b->getWeight();
+        });
+
+        return $cards;
     }
 
     /**

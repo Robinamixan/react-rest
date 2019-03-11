@@ -32,7 +32,8 @@ class GetCardsQueryHandler
      */
     public function handle(Request $request)
     {
-        $stage = $this->stageRepository->findOneBy(['id' => $request->get('stageId')]);
+        $stageId = $request->get('stageId');
+        $stage = $this->stageRepository->findOneBy(['id' => $stageId]);
         if (empty($stage)) {
             throw new NotFoundHttpException('Stage not found');
         }
@@ -41,10 +42,6 @@ class GetCardsQueryHandler
         if (empty($cards)) {
             throw new NotFoundHttpException('Cards not found');
         }
-
-        usort($cards, function ($a, $b) {
-            return $a->getWeight() - $b->getWeight();
-        });
 
         return $cards;
     }

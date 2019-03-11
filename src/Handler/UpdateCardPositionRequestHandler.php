@@ -92,57 +92,27 @@ class UpdateCardPositionRequestHandler
     {
         $stageCards = $stage->getCards();
 
-        $firstCard = $card;
-        $firstWeight = $card->getWeight();
-
-        $secondCard = null;
-        $secondWeight = null;
-
-        $weights = [];
-        foreach ($stageCards as $stageCard) {
-            $weights[$stageCard->getWeight()] = [
-                'id' => $stageCard->getId(),
-                'weight' => $stageCard->getWeight(),
-            ];
-        }
-        ksort($weights);
-        $weights = array_values($weights);
-
-        foreach ($weights as $index => $weight) {
-            if ($weight['weight'] === (int) $firstWeight) {
-                $counter = $index;
-                while (isset($weights[$counter])) {
-                    if ($action === WEIGHT_MOVE_UP) {
-                        if ($weights[$counter]['weight'] < $firstWeight) {
-                            $secondWeight = $weights[$counter]['weight'];
-                            $secondCard = $this->cardRepository->find($weights[$counter]['id']);
-                            break 2;
-                        } else {
-                            --$counter;
-                        }
-                    } else {
-                        if ($weights[$counter]['weight'] > $firstWeight) {
-                            $secondWeight = $weights[$counter]['weight'];
-                            $secondCard = $this->cardRepository->find($weights[$counter]['id']);
-                            break 2;
-                        } else {
-                            ++$counter;
-                        }
-                    }
+        foreach ($stageCards as $index => $stageCard) {
+            if ($stageCard->getId() === $card->getId()) {
+                if ($action === WEIGHT_MOVE_UP) {
+                    $replaceIndex = $index - 1;
+                } else {
+                    $replaceIndex = $index + 1;
                 }
+
+                if (key_exists($replaceIndex, $stageCards)) {
+                    $originalWeight = $card->getWeight();
+                    $replaceWeight = $stageCards[$replaceIndex]->getWeight();
+
+                    $this->cardRepository->updateWeight($card, $replaceWeight);
+                    $this->cardRepository->updateWeight($stageCards[$replaceIndex], $originalWeight);
+                }
+
+                break;
             }
         }
 
-        if (!empty($firstCard) && !empty($secondCard)) {
-            $firstCard->setWeight($secondWeight);
-            $secondCard->setWeight($firstWeight);
-
-            $this->entityManager->persist($firstCard);
-            $this->entityManager->persist($secondCard);
-            $this->entityManager->flush();
-        }
-
-        return $firstCard;
+        return $card;
     }
 
     /**
