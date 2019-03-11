@@ -2,16 +2,10 @@
 
 namespace App\DTO;
 
-
 use App\Entity\Card;
 use App\Entity\Stage;
-use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-/**
- * @Assert\GroupSequence({"CardRequestDto", "IfValidUrl"})
- */
 class CardRequestDto
 {
     /**
@@ -81,7 +75,7 @@ class CardRequestDto
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getTitle(): ?string
     {
@@ -89,7 +83,7 @@ class CardRequestDto
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getContent(): ?string
     {
@@ -97,7 +91,7 @@ class CardRequestDto
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getMove(): ?string
     {
@@ -105,7 +99,7 @@ class CardRequestDto
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getAction(): ?string
     {

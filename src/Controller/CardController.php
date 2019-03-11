@@ -80,9 +80,9 @@ class CardController extends FOSRestController
      *
      * @param CardRequestDto $dto
      * @param UpdateCardPositionRequestHandler $handler
-     *
      * @param Stage|null $stage
      * @param Card|null $card
+     *
      * @return Card
      */
     public function updateCardPosition(

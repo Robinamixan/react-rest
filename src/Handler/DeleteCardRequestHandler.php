@@ -2,7 +2,6 @@
 
 namespace App\Handler;
 
-
 use App\DTO\CardRequestDto;
 use App\Repository\CardRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -38,6 +37,7 @@ class DeleteCardRequestHandler
         }
 
         $this->cardRepository->remove($card);
+
         return [];
     }
 }

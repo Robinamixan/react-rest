@@ -2,7 +2,6 @@
 
 namespace App\Handler;
 
-
 use App\DTO\CardRequestDto;
 use App\Entity\Card;
 use App\Entity\Stage;

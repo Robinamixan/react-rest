@@ -48,8 +48,8 @@ class CardRepository extends ServiceEntityRepository
 
     /**
      * @param Card $card
-     * @param null|string $title
-     * @param null|string $content
+     * @param string|null $title
+     * @param string|null $content
      * @param Stage|null $stage
      * @param int|null $weight
      *
