@@ -15,6 +15,24 @@ class StageRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param Stage $stage
+     *
+     * @return int
+     */
+    public function getCardsMaxWeight(Stage $stage): int
+    {
+        $maxWeight = 0;
+        foreach ($stage->getCards() as $card) {
+            $cardWeight = $card->getWeight();
+            if ($cardWeight > $maxWeight) {
+                $maxWeight = $cardWeight;
+            }
+        }
+
+        return $maxWeight;
+    }
+
+    /**
      * @param string $title
      * @param Board $board
      *

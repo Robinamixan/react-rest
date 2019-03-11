@@ -147,20 +147,4 @@ class Stage
 
         return $this;
     }
-
-    /**
-     * @return int
-     */
-    public function getCardsMaxWeight(): int
-    {
-        $maxWeight = 0;
-        foreach ($this->cards as $card) {
-            $cardWeight = $card->getWeight();
-            if ($cardWeight > $maxWeight) {
-                $maxWeight = $cardWeight;
-            }
-        }
-
-        return $maxWeight;
-    }
 }

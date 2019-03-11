@@ -3,11 +3,10 @@
 namespace App\Handler;
 
 
+use App\DTO\CardRequestDto;
 use App\Entity\Card;
-use App\Entity\Stage;
 use App\Repository\CardRepository;
 use App\Repository\StageRepository;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AddCardRequestHandler
@@ -37,24 +36,19 @@ class AddCardRequestHandler
     }
 
     /**
-     * @param Request $request
+     * @param CardRequestDto $dto
      *
      * @return Card
      */
-    public function handle(Request $request)
+    public function handle(CardRequestDto $dto)
     {
-        $title = $request->request->get('title', '');
-        $content = $request->request->get('content', '');
-        $stageId = $request->get('stageId', '');
-
-        /** @var Stage $stage */
-        $stage = $this->stageRepository->find($stageId);
+        $stage = $dto->getStage();
         if (empty($stage)) {
             throw new NotFoundHttpException('Stage not found');
         }
 
-        $weight = $stage->getCardsMaxWeight() + 1;
+        $weight = $this->stageRepository->getCardsMaxWeight($stage) + 1;
 
-        return $this->cardRepository->create($title, $content, $stage, $weight);
+        return $this->cardRepository->create($dto->getTitle(), $dto->getContent(), $stage, $weight);
     }
 }

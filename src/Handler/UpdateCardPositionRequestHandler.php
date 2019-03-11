@@ -3,19 +3,18 @@
 namespace App\Handler;
 
 
+use App\DTO\CardRequestDto;
 use App\Entity\Card;
 use App\Entity\Stage;
 use App\Repository\CardRepository;
 use App\Repository\StageRepository;
-use Doctrine\Common\Persistence\ObjectManager;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-define('WEIGHT_CHANGE', '1');
+define('WEIGHT_CHANGE', 'change_weight');
 define('WEIGHT_MOVE_UP', 'up');
 define('WEIGHT_MOVE_DOWN', 'down');
 
-define('STAGE_CHANGE', '2');
+define('STAGE_CHANGE', 'change_stage');
 
 class UpdateCardPositionRequestHandler
 {
@@ -30,65 +29,56 @@ class UpdateCardPositionRequestHandler
     private $cardRepository;
 
     /**
-     * @var ObjectManager
-     */
-    private $entityManager;
-
-    /**
      * UpdateCardRequestHandler constructor.
      *
      * @param StageRepository $stageRepository
      * @param CardRepository $cardRepository
-     * @param ObjectManager $entityManager
      */
     public function __construct(
         StageRepository $stageRepository,
-        CardRepository $cardRepository,
-        ObjectManager $entityManager
+        CardRepository $cardRepository
     ) {
         $this->stageRepository = $stageRepository;
         $this->cardRepository = $cardRepository;
-        $this->entityManager = $entityManager;
     }
 
     /**
-     * @param Request $request
+     * @param CardRequestDto $dto
+     *
      * @return Card
      */
-    public function handle(Request $request)
+    public function handle(CardRequestDto $dto): Card
     {
-        $cardId = $request->get('cardId');
-        $stageId = $request->get('stageId');
-
-        $actionType = $request->request->get('actionType');
-        $action = $request->request->get('action');
-
-        /** @var Stage $stage */
-        $stage = $this->stageRepository->find($stageId);
+        $stage = $dto->getStage();
         if (empty($stage)) {
             throw new NotFoundHttpException('Stage not found');
         }
 
-        /** @var Card $card */
-        $card = $this->cardRepository->find($cardId);
-
+        $card = $dto->getCard();
         if (empty($card)) {
             throw new NotFoundHttpException('Card not found');
         }
 
-        switch ($actionType) {
+        switch ($dto->getMove()) {
             case WEIGHT_CHANGE:
-                $card = $this->changeCardPosition($card, $stage, $action);
+                $card = $this->changeCardPosition($card, $stage, $dto->getAction());
                 break;
             case STAGE_CHANGE:
-                $card = $this->changeCardStage($card, $action);
+                $card = $this->changeCardStage($card, $dto->getAction());
                 break;
         }
 
         return $card;
     }
 
-    private function changeCardPosition(Card $card, Stage $stage, string $action)
+    /**
+     * @param Card $card
+     * @param Stage $stage
+     * @param string $action
+     *
+     * @return Card
+     */
+    private function changeCardPosition(Card $card, Stage $stage, string $action): Card
     {
         $stageCards = $stage->getCards();
 
@@ -121,18 +111,12 @@ class UpdateCardPositionRequestHandler
      *
      * @return Card
      */
-    private function changeCardStage(Card $card, string $newStageId)
+    private function changeCardStage(Card $card, string $newStageId): Card
     {
+        /** @var Stage $stage */
         $stage = $this->stageRepository->find($newStageId);
 
-        /** @var Card $stageCard */
-        foreach ($stage->getCards() as $stageCard) {
-            $weight = $stageCard->getWeight();
-            $stageCard->setWeight($weight + 1);
-
-            $this->entityManager->persist($stageCard);
-        }
-        $this->entityManager->flush();
+        $this->cardRepository->increaseCardsWeight($stage->getCards());
 
         $card = $this->cardRepository->update($card, null, null, $stage, 0);
 

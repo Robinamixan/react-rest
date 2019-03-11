@@ -27,10 +27,23 @@ class CardRepository extends ServiceEntityRepository
         string $content,
         Stage $stage,
         int $weight
-    ) {
+    ): Card {
         $card = new Card($title, $content, $stage, $weight);
 
         return $this->save($card);
+    }
+
+    /**
+     * @param \App\Entity\Card $card
+     *
+     * @return \App\Entity\Card
+     */
+    public function save(Card $card): Card
+    {
+        $this->_em->persist($card);
+        $this->_em->flush();
+
+        return $card;
     }
 
     /**
@@ -48,8 +61,7 @@ class CardRepository extends ServiceEntityRepository
         ?string $content = null,
         ?Stage $stage = null,
         ?int $weight = null
-    )
-    {
+    ): Card {
         if (!is_null($title) && $title !== '') {
             $card->setTitle($title);
         }
@@ -75,7 +87,7 @@ class CardRepository extends ServiceEntityRepository
      *
      * @return Card
      */
-    public function updateWeight(Card $card, int $weight)
+    public function updateWeight(Card $card, int $weight): Card
     {
         $card->setWeight($weight);
 
@@ -83,16 +95,18 @@ class CardRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param \App\Entity\Card $card
-     *
-     * @return \App\Entity\Card
+     * @param Card[] $cards
      */
-    public function save(Card $card): Card
+    public function increaseCardsWeight(array $cards)
     {
-        $this->_em->persist($card);
-        $this->_em->flush();
+        /** @var Card $card */
+        foreach ($cards as $card) {
+            $weight = $card->getWeight();
+            $card->setWeight($weight + 1);
 
-        return $card;
+            $this->_em->persist($card);
+        }
+        $this->_em->flush();
     }
 
     /**

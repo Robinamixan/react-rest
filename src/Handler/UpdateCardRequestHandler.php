@@ -3,19 +3,14 @@
 namespace App\Handler;
 
 
+use App\DTO\CardRequestDto;
 use App\Entity\Card;
 use App\Repository\CardRepository;
 use App\Repository\StageRepository;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UpdateCardRequestHandler
 {
-    /**
-     * @var StageRepository
-     */
-    private $stageRepository;
-
     /**
      * @var CardRepository
      */
@@ -31,29 +26,26 @@ class UpdateCardRequestHandler
         StageRepository $stageRepository,
         CardRepository $cardRepository
     ) {
-        $this->stageRepository = $stageRepository;
         $this->cardRepository = $cardRepository;
     }
 
-    public function handle(Request $request)
+    /**
+     * @param CardRequestDto $dto
+     *
+     * @return Card
+     */
+    public function handle(CardRequestDto $dto)
     {
-        $stageId = $request->get('stageId');
-        $cardId = $request->get('cardId');
-        $title = $request->request->get('title');
-        $content = $request->request->get('content');
-
-        $stage = $this->stageRepository->find($stageId);
+        $stage = $dto->getStage();
         if (empty($stage)) {
             throw new NotFoundHttpException('Stage not found');
         }
 
-        /** @var Card $card */
-        $card = $this->cardRepository->find($cardId);
-
+        $card = $dto->getCard();
         if (empty($card)) {
             throw new NotFoundHttpException('Card not found');
         }
 
-        return $this->cardRepository->update($card, $title, $content, $stage);
+        return $this->cardRepository->update($card, $dto->getTitle(), $dto->getContent(), $stage);
     }
 }

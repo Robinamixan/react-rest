@@ -2,15 +2,18 @@
 
 namespace App\Controller;
 
+use App\DTO\CardRequestDto;
 use App\Entity\Card;
+use App\Entity\Stage;
 use App\Handler\AddCardRequestHandler;
 use App\Handler\DeleteCardRequestHandler;
-use App\Handler\GetCardsQueryHandler;
 use App\Handler\UpdateCardPositionRequestHandler;
 use App\Handler\UpdateCardRequestHandler;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
-use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @Rest\Route("/api/v1/stages/{stageId}/cards")
@@ -21,79 +24,120 @@ class CardController extends FOSRestController
      * @Rest\Post(path="/add")
      * @Rest\View()
      *
-     * @param Request $request
-     * @param AddCardRequestHandler $handler
+     * @ParamConverter("dto", converter="fos_rest.request_body")
+     * @Entity("stage", expr="repository.find(stageId)")
      *
-     * @return \App\Entity\Card
+     * @param CardRequestDto $dto
+     * @param AddCardRequestHandler $handler
+     * @param Stage|null $stage
+     *
+     * @return Card|\FOS\RestBundle\View\View
      */
     public function addCard(
-        Request $request,
-        AddCardRequestHandler $handler
+        CardRequestDto $dto,
+        AddCardRequestHandler $handler,
+        Stage $stage = null
     ) {
-        return $handler->handle($request);
+        $dto->setStage($stage);
+
+        return $handler->handle($dto);
     }
 
     /**
      * @Rest\Post(path="/{cardId}/update")
      * @Rest\View()
      *
-     * @param Request $request
+     * @ParamConverter("dto", converter="fos_rest.request_body")
+     * @Entity("stage", expr="repository.find(stageId)")
+     * @Entity("card", expr="repository.find(cardId)")
      *
+     * @param CardRequestDto $dto
      * @param UpdateCardRequestHandler $handler
+     * @param Stage|null $stage
+     * @param Card|null $card
+     *
      * @return Card
      */
     public function updateCard(
-        Request $request,
-        UpdateCardRequestHandler $handler
+        CardRequestDto $dto,
+        UpdateCardRequestHandler $handler,
+        Stage $stage = null,
+        Card $card = null
     ) {
-        return $handler->handle($request);
+        $dto->setStage($stage);
+        $dto->setCard($card);
+
+        return $handler->handle($dto);
     }
 
     /**
      * @Rest\Post(path="/{cardId}/update/position")
      * @Rest\View()
      *
-     * @param Request $request
+     * @ParamConverter("dto", converter="fos_rest.request_body")
+     * @Entity("stage", expr="repository.find(stageId)")
+     * @Entity("card", expr="repository.find(cardId)")
+     *
+     * @param CardRequestDto $dto
      * @param UpdateCardPositionRequestHandler $handler
      *
+     * @param Stage|null $stage
+     * @param Card|null $card
      * @return Card
      */
     public function updateCardPosition(
-        Request $request,
-        UpdateCardPositionRequestHandler $handler
+        CardRequestDto $dto,
+        UpdateCardPositionRequestHandler $handler,
+        Stage $stage = null,
+        Card $card = null
     ) {
-        return $handler->handle($request);
+        $dto->setStage($stage);
+        $dto->setCard($card);
+
+        return $handler->handle($dto);
     }
 
     /**
-     * @Rest\Post(path="/delete")
+     * @Rest\Post(path="/{cardId}/delete")
      * @Rest\View()
      *
-     * @param Request $request
+     * @ParamConverter("dto", converter="fos_rest.request_body")
+     * @Entity("card", expr="repository.find(cardId)")
      *
+     * @param CardRequestDto $dto
      * @param DeleteCardRequestHandler $handler
+     * @param Card|null $card
+     *
      * @return array
      */
     public function deleteCard(
-        Request $request,
-        DeleteCardRequestHandler $handler
+        CardRequestDto $dto,
+        DeleteCardRequestHandler $handler,
+        Card $card = null
     ) {
-        return $handler->handle($request);
+        $dto->setCard($card);
+
+        return $handler->handle($dto);
     }
 
     /**
      * @Rest\Get(path="/")
      * @Rest\View()
      *
-     * @param Request $request
+     * @Entity("stage", expr="repository.find(stageId)")
      *
-     * @param GetCardsQueryHandler $handler
+     * @param Stage|null $stage
+     *
      * @return Card[]|array
      */
     public function getCards(
-        Request $request,
-        GetCardsQueryHandler $handler
+        Stage $stage = null
     ) {
-        return $handler->handle($request);
+        $cards = $stage->getCards();
+        if (empty($cards)) {
+            throw new NotFoundHttpException('Cards not found');
+        }
+
+        return $cards;
     }
 }
