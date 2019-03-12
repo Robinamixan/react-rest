@@ -2,6 +2,3 @@
 #    path: /
 #    controller: App\Controller\DefaultController::index
 
-RestContent:
-    type:     rest
-    resource: App\Controller\RestContentController

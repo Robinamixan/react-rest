@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -28,21 +27,35 @@ class Board
      */
     private $stages;
 
+    /**
+     * Board constructor.
+     */
     public function __construct()
     {
         $this->stages = new ArrayCollection();
     }
 
+    /**
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * @return string|null
+     */
     public function getTitle(): ?string
     {
         return $this->title;
     }
 
+    /**
+     * @param string $title
+     *
+     * @return Board
+     */
     public function setTitle(string $title): self
     {
         $this->title = $title;
@@ -51,13 +64,18 @@ class Board
     }
 
     /**
-     * @return Collection|Stage[]
+     * @return Stage[]
      */
-    public function getStages(): Collection
+    public function getStages(): array
     {
-        return $this->stages;
+        return $this->stages->toArray();
     }
 
+    /**
+     * @param Stage $stage
+     *
+     * @return Board
+     */
     public function addStage(Stage $stage): self
     {
         if (!$this->stages->contains($stage)) {
@@ -68,6 +86,11 @@ class Board
         return $this;
     }
 
+    /**
+     * @param Stage $stage
+     *
+     * @return Board
+     */
     public function removeStage(Stage $stage): self
     {
         if ($this->stages->contains($stage)) {
