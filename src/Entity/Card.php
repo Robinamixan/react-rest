@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CardRepository")
@@ -10,43 +11,80 @@ use Doctrine\ORM\Mapping as ORM;
 class Card
 {
     /**
+     * @JMS\Type("string")
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=false)
      */
     private $id;
 
     /**
+     * @JMS\Type("string")
+     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $title;
 
     /**
+     * @JMS\Type("string")
+     *
      * @ORM\Column(type="string", length=580, nullable=true)
      */
     private $content;
 
     /**
+     * @JMS\Exclude()
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Stage", inversedBy="cards")
      * @ORM\JoinColumn(nullable=false)
      */
     private $stage;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @JMS\Type("string")
+     *
+     * @ORM\Column(type="integer", nullable=false)
      */
     private $weight;
 
+    /**
+     * Card constructor.
+     *
+     * @param string $title
+     * @param string $content
+     * @param Stage $stage
+     * @param int $weight
+     */
+    public function __construct(string $title, string $content, Stage $stage, int $weight = 0)
+    {
+        $this->setTitle($title);
+        $this->setContent($content);
+        $this->setStage($stage);
+        $this->setWeight($weight);
+    }
+
+    /**
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * @return string|null
+     */
     public function getTitle(): ?string
     {
         return $this->title;
     }
 
+    /**
+     * @param string|null $title
+     *
+     * @return Card
+     */
     public function setTitle(?string $title): self
     {
         $this->title = $title;
@@ -54,11 +92,19 @@ class Card
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getContent(): ?string
     {
         return $this->content;
     }
 
+    /**
+     * @param string|null $content
+     *
+     * @return Card
+     */
     public function setContent(?string $content): self
     {
         $this->content = $content;
@@ -66,24 +112,40 @@ class Card
         return $this;
     }
 
-    public function getStage(): ?Stage
+    /**
+     * @return Stage
+     */
+    public function getStage(): Stage
     {
         return $this->stage;
     }
 
-    public function setStage(?Stage $stage): self
+    /**
+     * @param Stage $stage
+     *
+     * @return Card
+     */
+    public function setStage(Stage $stage): self
     {
         $this->stage = $stage;
 
         return $this;
     }
 
-    public function getWeight(): ?int
+    /**
+     * @return int
+     */
+    public function getWeight(): int
     {
         return $this->weight;
     }
 
-    public function setWeight(?int $weight): self
+    /**
+     * @param int $weight
+     *
+     * @return Card
+     */
+    public function setWeight(int $weight): self
     {
         $this->weight = $weight;
 

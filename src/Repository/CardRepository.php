@@ -3,15 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\Card;
+use App\Entity\Stage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
-/**
- * @method Card|null find($id, $lockMode = null, $lockVersion = null)
- * @method Card|null findOneBy(array $criteria, array $orderBy = null)
- * @method Card[]    findAll()
- * @method Card[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
 class CardRepository extends ServiceEntityRepository
 {
     public function __construct(RegistryInterface $registry)
@@ -19,32 +14,107 @@ class CardRepository extends ServiceEntityRepository
         parent::__construct($registry, Card::class);
     }
 
-//    /**
-//     * @return Card[] Returns an array of Card objects
-//     */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+    /**
+     * @param string $title
+     * @param string $content
+     * @param Stage $stage
+     * @param int $weight
+     *
+     * @return Card
+     */
+    public function create(
+        string $title,
+        string $content,
+        Stage $stage,
+        int $weight
+    ): Card {
+        $card = new Card($title, $content, $stage, $weight);
 
-    /*
-    public function findOneBySomeField($value): ?Card
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        return $this->save($card);
     }
-    */
+
+    /**
+     * @param \App\Entity\Card $card
+     *
+     * @return \App\Entity\Card
+     */
+    public function save(Card $card): Card
+    {
+        $this->_em->persist($card);
+        $this->_em->flush();
+
+        return $card;
+    }
+
+    /**
+     * @param Card $card
+     * @param string|null $title
+     * @param string|null $content
+     * @param Stage|null $stage
+     * @param int|null $weight
+     *
+     * @return Card
+     */
+    public function update(
+        Card $card,
+        ?string $title = null,
+        ?string $content = null,
+        ?Stage $stage = null,
+        ?int $weight = null
+    ): Card {
+        if (!is_null($title) && $title !== '') {
+            $card->setTitle($title);
+        }
+
+        if (!is_null($content) && $title !== '') {
+            $card->setContent($content);
+        }
+
+        if (!is_null($stage)) {
+            $card->setStage($stage);
+        }
+
+        if (!is_null($weight)) {
+            $card->setWeight($weight);
+        }
+
+        return $this->save($card);
+    }
+
+    /**
+     * @param Card $card
+     * @param int $weight
+     *
+     * @return Card
+     */
+    public function updateWeight(Card $card, int $weight): Card
+    {
+        $card->setWeight($weight);
+
+        return $this->save($card);
+    }
+
+    /**
+     * @param Card[] $cards
+     */
+    public function increaseCardsWeight(array $cards)
+    {
+        /** @var Card $card */
+        foreach ($cards as $card) {
+            $weight = $card->getWeight();
+            $card->setWeight($weight + 1);
+
+            $this->_em->persist($card);
+        }
+        $this->_em->flush();
+    }
+
+    /**
+     * @param \App\Entity\Card $card
+     */
+    public function remove(Card $card)
+    {
+        $this->_em->remove($card);
+        $this->_em->flush();
+    }
 }

@@ -2,16 +2,11 @@
 
 namespace App\Repository;
 
+use App\Entity\Board;
 use App\Entity\Stage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
-/**
- * @method Stage|null find($id, $lockMode = null, $lockVersion = null)
- * @method Stage|null findOneBy(array $criteria, array $orderBy = null)
- * @method Stage[]    findAll()
- * @method Stage[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
 class StageRepository extends ServiceEntityRepository
 {
     public function __construct(RegistryInterface $registry)
@@ -19,32 +14,49 @@ class StageRepository extends ServiceEntityRepository
         parent::__construct($registry, Stage::class);
     }
 
-//    /**
-//     * @return Stage[] Returns an array of Stage objects
-//     */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @param Stage $stage
+     *
+     * @return int
+     */
+    public function getCardsMaxWeight(Stage $stage): int
     {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $maxWeight = 0;
+        foreach ($stage->getCards() as $card) {
+            $cardWeight = $card->getWeight();
+            if ($cardWeight > $maxWeight) {
+                $maxWeight = $cardWeight;
+            }
+        }
 
-    /*
-    public function findOneBySomeField($value): ?Stage
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        return $maxWeight;
     }
-    */
+
+    /**
+     * @param string $title
+     * @param Board $board
+     *
+     * @return Stage
+     */
+    public function create(
+        string $title,
+        Board $board
+    ) {
+        $stage = new Stage($title, $board);
+
+        return $this->save($stage);
+    }
+
+    /**
+     * @param \App\Entity\Stage $stage
+     *
+     * @return \App\Entity\Stage
+     */
+    public function save(Stage $stage): Stage
+    {
+        $this->_em->persist($stage);
+        $this->_em->flush();
+
+        return $stage;
+    }
 }
