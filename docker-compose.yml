@@ -5,8 +5,6 @@ services:
     build:
       context: .
       dockerfile: ./Docker/php/Dockerfile
-      args:
-        - TIMEZONE=Europe/London
     env_file:
       - .env
     environment:
@@ -31,7 +29,7 @@ services:
       context: .
       dockerfile: ./Docker/mysql/Dockerfile
     ports:
-    - 8010:3306
+    - ${DB_PORT_EX}:${DB_PORT}
     env_file:
       - .env
     volumes:
