@@ -3,15 +3,24 @@
 namespace App\Repository;
 
 use App\Entity\Board;
+use App\Entity\Card;
 use App\Entity\Stage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 class StageRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
+    public function __construct(RegistryInterface $registry, EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, Stage::class);
+
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -21,15 +30,14 @@ class StageRepository extends ServiceEntityRepository
      */
     public function getCardsMaxWeight(Stage $stage): int
     {
-        $maxWeight = 0;
-        foreach ($stage->getCards() as $card) {
-            $cardWeight = $card->getWeight();
-            if ($cardWeight > $maxWeight) {
-                $maxWeight = $cardWeight;
-            }
-        }
+        $weights = array_map(
+            function(Card $card): int {
+                return $card->getWeight();
+            },
+            $stage->getCards()
+        );
 
-        return $maxWeight;
+        return !empty($weights) ? max($weights) : 0;
     }
 
     /**
@@ -41,21 +49,21 @@ class StageRepository extends ServiceEntityRepository
     public function create(
         string $title,
         Board $board
-    ) {
+    ): Stage {
         $stage = new Stage($title, $board);
 
         return $this->save($stage);
     }
 
     /**
-     * @param \App\Entity\Stage $stage
+     * @param Stage $stage
      *
-     * @return \App\Entity\Stage
+     * @return Stage
      */
     public function save(Stage $stage): Stage
     {
-        $this->_em->persist($stage);
-        $this->_em->flush();
+        $this->entityManager->persist($stage);
+        $this->entityManager->flush();
 
         return $stage;
     }

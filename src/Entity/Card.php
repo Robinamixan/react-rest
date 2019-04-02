@@ -149,4 +149,14 @@ class Card
 
         return $this;
     }
+
+    /**
+     * @return Card
+     */
+    public function increaseWeight(): self
+    {
+        $this->weight += 1;
+
+        return $this;
+    }
 }

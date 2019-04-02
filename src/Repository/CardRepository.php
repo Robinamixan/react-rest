@@ -5,13 +5,21 @@ namespace App\Repository;
 use App\Entity\Card;
 use App\Entity\Stage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 class CardRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
+    public function __construct(RegistryInterface $registry, EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, Card::class);
+
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -34,14 +42,14 @@ class CardRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param \App\Entity\Card $card
+     * @param Card $card
      *
-     * @return \App\Entity\Card
+     * @return Card
      */
     public function save(Card $card): Card
     {
-        $this->_em->persist($card);
-        $this->_em->flush();
+        $this->entityManager->persist($card);
+        $this->entityManager->flush();
 
         return $card;
     }
@@ -62,19 +70,19 @@ class CardRepository extends ServiceEntityRepository
         ?Stage $stage = null,
         ?int $weight = null
     ): Card {
-        if (!is_null($title) && $title !== '') {
+        if ($title !== null && $title !== '') {
             $card->setTitle($title);
         }
 
-        if (!is_null($content) && $title !== '') {
+        if ($content !== null && $title !== '') {
             $card->setContent($content);
         }
 
-        if (!is_null($stage)) {
+        if ($stage !== null) {
             $card->setStage($stage);
         }
 
-        if (!is_null($weight)) {
+        if ($weight!== null) {
             $card->setWeight($weight);
         }
 
@@ -97,24 +105,23 @@ class CardRepository extends ServiceEntityRepository
     /**
      * @param Card[] $cards
      */
-    public function increaseCardsWeight(array $cards)
+    public function increaseCardsWeight(array $cards): void
     {
         /** @var Card $card */
         foreach ($cards as $card) {
-            $weight = $card->getWeight();
-            $card->setWeight($weight + 1);
+            $card->increaseWeight();
 
-            $this->_em->persist($card);
+            $this->entityManager->persist($card);
         }
-        $this->_em->flush();
+        $this->entityManager->flush();
     }
 
     /**
-     * @param \App\Entity\Card $card
+     * @param Card $card
      */
-    public function remove(Card $card)
+    public function remove(Card $card): void
     {
-        $this->_em->remove($card);
-        $this->_em->flush();
+        $this->entityManager->remove($card);
+        $this->entityManager->flush();
     }
 }

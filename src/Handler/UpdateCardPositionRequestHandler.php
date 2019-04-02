@@ -78,23 +78,20 @@ class UpdateCardPositionRequestHandler
     {
         $stageCards = $stage->getCards();
 
-        foreach ($stageCards as $index => $stageCard) {
-            if ($stageCard->getId() === $card->getId()) {
-                if ($action === WEIGHT_MOVE_UP) {
-                    $replaceIndex = $index - 1;
-                } else {
-                    $replaceIndex = $index + 1;
-                }
+        $index = array_search($card, $stageCards);
+        if ($index !== false) {
+            if ($action === WEIGHT_MOVE_UP) {
+                $replaceIndex = --$index;
+            } else {
+                $replaceIndex = ++$index;
+            }
 
-                if (key_exists($replaceIndex, $stageCards)) {
-                    $originalWeight = $card->getWeight();
-                    $replaceWeight = $stageCards[$replaceIndex]->getWeight();
+            if (key_exists($replaceIndex, $stageCards)) {
+                $originalWeight = $card->getWeight();
+                $replaceWeight = $stageCards[$replaceIndex]->getWeight();
 
-                    $this->cardRepository->updateWeight($card, $replaceWeight);
-                    $this->cardRepository->updateWeight($stageCards[$replaceIndex], $originalWeight);
-                }
-
-                break;
+                $this->cardRepository->updateWeight($card, $replaceWeight);
+                $this->cardRepository->updateWeight($stageCards[$replaceIndex], $originalWeight);
             }
         }
 
