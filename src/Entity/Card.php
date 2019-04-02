@@ -15,7 +15,7 @@ class Card
      *
      * @ORM\Id()
      * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer", nullable=false)
+     * @ORM\Column(type="integer")
      */
     private $id;
 
@@ -44,13 +44,11 @@ class Card
     /**
      * @JMS\Type("string")
      *
-     * @ORM\Column(type="integer", nullable=false)
+     * @ORM\Column(type="integer")
      */
     private $weight;
 
     /**
-     * Card constructor.
-     *
      * @param string $title
      * @param string $content
      * @param Stage $stage

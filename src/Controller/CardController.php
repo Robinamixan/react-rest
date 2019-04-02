@@ -107,8 +107,6 @@ class CardController extends FOSRestController
      * @param CardRequestDto $dto
      * @param DeleteCardRequestHandler $handler
      * @param Card|null $card
-     *
-     * @return array
      */
     public function deleteCard(
         CardRequestDto $dto,
@@ -117,7 +115,7 @@ class CardController extends FOSRestController
     ) {
         $dto->setCard($card);
 
-        return $handler->handle($dto);
+        $handler->handle($dto);
     }
 
     /**

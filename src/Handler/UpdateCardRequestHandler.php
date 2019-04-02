@@ -16,8 +16,6 @@ class UpdateCardRequestHandler
     private $cardRepository;
 
     /**
-     * UpdateCardRequestHandler constructor.
-     *
      * @param StageRepository $stageRepository
      * @param CardRepository $cardRepository
      */
@@ -32,8 +30,10 @@ class UpdateCardRequestHandler
      * @param CardRequestDto $dto
      *
      * @return Card
+     *
+     * @throws NotFoundHttpException
      */
-    public function handle(CardRequestDto $dto)
+    public function handle(CardRequestDto $dto): Card
     {
         $stage = $dto->getStage();
         if (empty($stage)) {

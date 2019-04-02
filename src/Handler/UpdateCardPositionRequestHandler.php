@@ -28,8 +28,6 @@ class UpdateCardPositionRequestHandler
     private $cardRepository;
 
     /**
-     * UpdateCardRequestHandler constructor.
-     *
      * @param StageRepository $stageRepository
      * @param CardRepository $cardRepository
      */
@@ -45,6 +43,8 @@ class UpdateCardPositionRequestHandler
      * @param CardRequestDto $dto
      *
      * @return Card
+     *
+     * @throws NotFoundHttpException
      */
     public function handle(CardRequestDto $dto): Card
     {
@@ -58,13 +58,10 @@ class UpdateCardPositionRequestHandler
             throw new NotFoundHttpException('Card not found');
         }
 
-        switch ($dto->getMove()) {
-            case WEIGHT_CHANGE:
-                $card = $this->changeCardPosition($card, $stage, $dto->getAction());
-                break;
-            case STAGE_CHANGE:
-                $card = $this->changeCardStage($card, $dto->getAction());
-                break;
+        if ($dto->getMove() === WEIGHT_CHANGE) {
+            $card = $this->changeCardPosition($card, $stage, $dto->getAction());
+        } elseif ($dto->getMove() === STAGE_CHANGE) {
+            $card = $this->changeCardStage($card, $dto->getAction());
         }
 
         return $card;

@@ -16,7 +16,7 @@ class Stage
      *
      * @ORM\Id()
      * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer", nullable=false)
+     * @ORM\Column(type="integer")
      */
     private $id;
 
@@ -41,8 +41,6 @@ class Stage
     private $cards;
 
     /**
-     * Stage constructor.
-     *
      * @param string $title
      * @param Board $board
      */
@@ -108,7 +106,7 @@ class Stage
     {
         $cards = $this->cards->toArray();
 
-        usort($cards, function ($a, $b) {
+        usort($cards, function (Card $a, Card $b): int {
             return $a->getWeight() - $b->getWeight();
         });
 

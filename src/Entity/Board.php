@@ -27,9 +27,6 @@ class Board
      */
     private $stages;
 
-    /**
-     * Board constructor.
-     */
     public function __construct()
     {
         $this->stages = new ArrayCollection();

@@ -2,6 +2,7 @@
 
 namespace App\Handler;
 
+use App\Entity\Stage;
 use App\Repository\BoardRepository;
 use App\Repository\StageRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,8 +21,6 @@ class AddStageRequestHandler
     private $stageRepository;
 
     /**
-     * AddStageRequestHandler constructor.
-     *
      * @param BoardRepository $boardRepository
      * @param StageRepository $stageRepository
      */
@@ -36,9 +35,11 @@ class AddStageRequestHandler
     /**
      * @param Request $request
      *
-     * @return \App\Entity\Stage
+     * @return Stage
+     *
+     * @throws NotFoundHttpException
      */
-    public function handle(Request $request)
+    public function handle(Request $request): Stage
     {
         $title = $request->request->get('title', '');
         $boardId = $request->request->get('idBoard', '');

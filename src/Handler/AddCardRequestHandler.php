@@ -21,8 +21,6 @@ class AddCardRequestHandler
     private $cardRepository;
 
     /**
-     * AddCardRequestHandler constructor.
-     *
      * @param StageRepository $stageRepository
      * @param CardRepository $cardRepository
      */
@@ -38,8 +36,10 @@ class AddCardRequestHandler
      * @param CardRequestDto $dto
      *
      * @return Card
+     *
+     * @throws NotFoundHttpException
      */
-    public function handle(CardRequestDto $dto)
+    public function handle(CardRequestDto $dto): Card
     {
         $stage = $dto->getStage();
         if (empty($stage)) {

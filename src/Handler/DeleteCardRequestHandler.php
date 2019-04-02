@@ -14,8 +14,6 @@ class DeleteCardRequestHandler
     private $cardRepository;
 
     /**
-     * DeleteCardRequestHandler constructor.
-     *
      * @param CardRepository $cardRepository
      */
     public function __construct(
@@ -27,9 +25,9 @@ class DeleteCardRequestHandler
     /**
      * @param CardRequestDto $dto
      *
-     * @return array
+     * @throws NotFoundHttpException
      */
-    public function handle(CardRequestDto $dto): array
+    public function handle(CardRequestDto $dto): void
     {
         $card = $dto->getCard();
         if (empty($card)) {
@@ -37,7 +35,5 @@ class DeleteCardRequestHandler
         }
 
         $this->cardRepository->remove($card);
-
-        return [];
     }
 }
