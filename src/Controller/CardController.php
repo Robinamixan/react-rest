@@ -44,7 +44,7 @@ class CardController extends FOSRestController
     }
 
     /**
-     * @Rest\Post(path="/{cardId}/update")
+     * @Rest\Put(path="/{cardId}/update")
      * @Rest\View()
      *
      * @ParamConverter("dto", converter="fos_rest.request_body")
@@ -71,7 +71,7 @@ class CardController extends FOSRestController
     }
 
     /**
-     * @Rest\Post(path="/{cardId}/update/position")
+     * @Rest\Put(path="/{cardId}/update/position")
      * @Rest\View()
      *
      * @ParamConverter("dto", converter="fos_rest.request_body")
@@ -98,7 +98,7 @@ class CardController extends FOSRestController
     }
 
     /**
-     * @Rest\Post(path="/{cardId}/delete")
+     * @Rest\Delete(path="/{cardId}/delete")
      * @Rest\View()
      *
      * @ParamConverter("dto", converter="fos_rest.request_body")
