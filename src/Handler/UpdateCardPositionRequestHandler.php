@@ -90,10 +90,12 @@ class UpdateCardPositionRequestHandler
                 $originalWeight = $card->getWeight();
                 $replaceWeight = $stageCards[$replaceIndex]->getWeight();
 
-                $this->cardRepository->updateWeight($card, $replaceWeight);
-                $this->cardRepository->updateWeight($stageCards[$replaceIndex], $originalWeight);
+                $this->cardRepository->updateWeight($card, $replaceWeight, false);
+                $this->cardRepository->updateWeight($stageCards[$replaceIndex], $originalWeight, false);
             }
         }
+
+        $this->cardRepository->flush();
 
         return $card;
     }
@@ -109,9 +111,11 @@ class UpdateCardPositionRequestHandler
         /** @var Stage $stage */
         $stage = $this->stageRepository->find($newStageId);
 
-        $this->cardRepository->increaseCardsWeight($stage->getCards());
+        $this->cardRepository->increaseCardsWeight($stage->getCards(), false);
 
-        $card = $this->cardRepository->update($card, null, null, $stage, 0);
+        $card = $this->cardRepository->update($card, null, null, $stage, 0, false);
+
+        $this->cardRepository->flush();
 
         return $card;
     }

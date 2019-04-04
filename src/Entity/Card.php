@@ -155,7 +155,7 @@ class Card
      */
     public function increaseWeight(): self
     {
-        $this->weight += 1;
+        ++$this->weight;
 
         return $this;
     }

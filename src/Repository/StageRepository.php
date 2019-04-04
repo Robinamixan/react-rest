@@ -31,7 +31,7 @@ class StageRepository extends ServiceEntityRepository
     public function getCardsMaxWeight(Stage $stage): int
     {
         $weights = array_map(
-            function(Card $card): int {
+            function (Card $card): int {
                 return $card->getWeight();
             },
             $stage->getCards()
