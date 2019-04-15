@@ -63,8 +63,12 @@ class StageRepository extends ServiceEntityRepository
     public function save(Stage $stage): Stage
     {
         $this->entityManager->persist($stage);
-        $this->entityManager->flush();
 
         return $stage;
+    }
+
+    public function flush(): void
+    {
+        $this->entityManager->flush();
     }
 }

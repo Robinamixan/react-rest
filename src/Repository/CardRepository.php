@@ -27,7 +27,6 @@ class CardRepository extends ServiceEntityRepository
      * @param string $content
      * @param Stage $stage
      * @param int $weight
-     * @param bool $doFlash
      *
      * @return Card
      */
@@ -35,12 +34,11 @@ class CardRepository extends ServiceEntityRepository
         string $title,
         string $content,
         Stage $stage,
-        int $weight,
-        $doFlash = true
+        int $weight
     ): Card {
         $card = new Card($title, $content, $stage, $weight);
 
-        return $this->save($card, $doFlash);
+        return $this->save($card);
     }
 
     /**
@@ -49,7 +47,6 @@ class CardRepository extends ServiceEntityRepository
      * @param string|null $content
      * @param Stage|null $stage
      * @param int|null $weight
-     * @param bool $doFlash
      *
      * @return Card
      */
@@ -58,8 +55,7 @@ class CardRepository extends ServiceEntityRepository
         ?string $title = null,
         ?string $content = null,
         ?Stage $stage = null,
-        ?int $weight = null,
-        $doFlash = true
+        ?int $weight = null
     ): Card {
         if ($title !== null && $title !== '') {
             $card->setTitle($title);
@@ -77,28 +73,26 @@ class CardRepository extends ServiceEntityRepository
             $card->setWeight($weight);
         }
 
-        return $this->save($card, $doFlash);
+        return $this->save($card);
     }
 
     /**
      * @param Card $card
      * @param int $weight
-     * @param bool $doFlash
      *
      * @return Card
      */
-    public function updateWeight(Card $card, int $weight, $doFlash = true): Card
+    public function updateWeight(Card $card, int $weight): Card
     {
         $card->setWeight($weight);
 
-        return $this->save($card, $doFlash);
+        return $this->save($card);
     }
 
     /**
      * @param Card[] $cards
-     * @param bool $doFlash
      */
-    public function increaseCardsWeight(array $cards, $doFlash = true): void
+    public function increaseCardsWeight(array $cards): void
     {
         /** @var Card $card */
         foreach ($cards as $card) {
@@ -106,39 +100,26 @@ class CardRepository extends ServiceEntityRepository
 
             $this->entityManager->persist($card);
         }
-        if ($doFlash) {
-            $this->entityManager->flush();
-        }
     }
 
     /**
      * @param Card $card
-     * @param bool $doFlash
      *
      * @return Card
      */
-    public function save(Card $card, $doFlash = true): Card
+    public function save(Card $card): Card
     {
         $this->entityManager->persist($card);
-
-        if ($doFlash) {
-            $this->entityManager->flush();
-        }
 
         return $card;
     }
 
     /**
      * @param Card $card
-     * @param bool $doFlash
      */
-    public function remove(Card $card, $doFlash = true): void
+    public function remove(Card $card): void
     {
         $this->entityManager->remove($card);
-
-        if ($doFlash) {
-            $this->entityManager->flush();
-        }
     }
 
     public function flush(): void

@@ -29,23 +29,15 @@ class CardRequestHandler
     private $cardRepository;
 
     /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
      * @param StageRepository $stageRepository
      * @param CardRepository $cardRepository
-     * @param EntityManagerInterface $entityManager
      */
     public function __construct(
         StageRepository $stageRepository,
-        CardRepository $cardRepository,
-        EntityManagerInterface $entityManager
+        CardRepository $cardRepository
     ) {
         $this->stageRepository = $stageRepository;
         $this->cardRepository = $cardRepository;
-        $this->entityManager = $entityManager;
     }
 
     /**
@@ -64,7 +56,10 @@ class CardRequestHandler
 
         $weight = $this->stageRepository->getCardsMaxWeight($stage) + 1;
 
-        return $this->cardRepository->create($dto->getTitle(), $dto->getContent(), $stage, $weight);
+        $card = $this->cardRepository->create($dto->getTitle(), $dto->getContent(), $stage, $weight);
+        $this->cardRepository->flush();
+
+        return $card;
     }
 
     /**
@@ -80,6 +75,7 @@ class CardRequestHandler
         }
 
         $this->cardRepository->remove($card);
+        $this->cardRepository->flush();
     }
 
     /**
@@ -107,6 +103,8 @@ class CardRequestHandler
             $card = $this->changeCardStage($card, $dto->getAction());
         }
 
+        $this->cardRepository->flush();
+
         return $card;
     }
 
@@ -129,7 +127,11 @@ class CardRequestHandler
             throw new NotFoundHttpException('Card not found');
         }
 
-        return $this->cardRepository->update($card, $dto->getTitle(), $dto->getContent(), $stage);
+        $updatedCard = $this->cardRepository->update($card, $dto->getTitle(), $dto->getContent(), $stage);
+
+        $this->cardRepository->flush();
+
+        return $updatedCard;
     }
 
     /**
@@ -155,12 +157,10 @@ class CardRequestHandler
                 $originalWeight = $card->getWeight();
                 $replaceWeight = $stageCards[$replaceIndex]->getWeight();
 
-                $this->cardRepository->updateWeight($card, $replaceWeight, false);
-                $this->cardRepository->updateWeight($stageCards[$replaceIndex], $originalWeight, false);
+                $this->cardRepository->updateWeight($card, $replaceWeight);
+                $this->cardRepository->updateWeight($stageCards[$replaceIndex], $originalWeight);
             }
         }
-
-        $this->cardRepository->flush();
 
         return $card;
     }
@@ -176,11 +176,9 @@ class CardRequestHandler
         /** @var Stage $stage */
         $stage = $this->stageRepository->find($newStageId);
 
-        $this->cardRepository->increaseCardsWeight($stage->getCards(), false);
+        $this->cardRepository->increaseCardsWeight($stage->getCards());
 
-        $card = $this->cardRepository->update($card, null, null, $stage, 0, false);
-
-        $this->cardRepository->flush();
+        $card = $this->cardRepository->update($card, null, null, $stage, 0);
 
         return $card;
     }
