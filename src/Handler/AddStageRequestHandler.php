@@ -50,6 +50,10 @@ class AddStageRequestHandler
             throw new NotFoundHttpException('Board not found');
         }
 
-        return $this->stageRepository->create($title, $board);
+        $stage = $this->stageRepository->create($title, $board);
+
+        $this->stageRepository->flush();
+
+        return $stage;
     }
 }

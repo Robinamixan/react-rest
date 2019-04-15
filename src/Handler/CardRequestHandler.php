@@ -7,7 +7,6 @@ use App\Entity\Card;
 use App\Entity\Stage;
 use App\Repository\CardRepository;
 use App\Repository\StageRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 define('WEIGHT_CHANGE', 'change_weight');
