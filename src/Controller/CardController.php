@@ -5,10 +5,7 @@ namespace App\Controller;
 use App\DTO\CardRequestDto;
 use App\Entity\Card;
 use App\Entity\Stage;
-use App\Handler\AddCardRequestHandler;
-use App\Handler\DeleteCardRequestHandler;
-use App\Handler\UpdateCardPositionRequestHandler;
-use App\Handler\UpdateCardRequestHandler;
+use App\Handler\CardRequestHandler;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
@@ -28,19 +25,19 @@ class CardController extends FOSRestController
      * @Entity("stage", expr="repository.find(stageId)")
      *
      * @param CardRequestDto $dto
-     * @param AddCardRequestHandler $handler
+     * @param CardRequestHandler $handler
      * @param Stage|null $stage
      *
      * @return Card|\FOS\RestBundle\View\View
      */
     public function addCard(
         CardRequestDto $dto,
-        AddCardRequestHandler $handler,
+        CardRequestHandler $handler,
         Stage $stage = null
     ) {
         $dto->setStage($stage);
 
-        return $handler->handle($dto);
+        return $handler->handleAddRequest($dto);
     }
 
     /**
@@ -52,7 +49,7 @@ class CardController extends FOSRestController
      * @Entity("card", expr="repository.find(cardId)")
      *
      * @param CardRequestDto $dto
-     * @param UpdateCardRequestHandler $handler
+     * @param CardRequestHandler $handler
      * @param Stage|null $stage
      * @param Card|null $card
      *
@@ -60,14 +57,14 @@ class CardController extends FOSRestController
      */
     public function updateCard(
         CardRequestDto $dto,
-        UpdateCardRequestHandler $handler,
+        CardRequestHandler $handler,
         Stage $stage = null,
         Card $card = null
     ) {
         $dto->setStage($stage);
         $dto->setCard($card);
 
-        return $handler->handle($dto);
+        return $handler->handleUpdateRequest($dto);
     }
 
     /**
@@ -79,7 +76,7 @@ class CardController extends FOSRestController
      * @Entity("card", expr="repository.find(cardId)")
      *
      * @param CardRequestDto $dto
-     * @param UpdateCardPositionRequestHandler $handler
+     * @param CardRequestHandler $handler
      * @param Stage|null $stage
      * @param Card|null $card
      *
@@ -87,14 +84,14 @@ class CardController extends FOSRestController
      */
     public function updateCardPosition(
         CardRequestDto $dto,
-        UpdateCardPositionRequestHandler $handler,
+        CardRequestHandler $handler,
         Stage $stage = null,
         Card $card = null
     ) {
         $dto->setStage($stage);
         $dto->setCard($card);
 
-        return $handler->handle($dto);
+        return $handler->handleUpdatePositionRequest($dto);
     }
 
     /**
@@ -105,17 +102,17 @@ class CardController extends FOSRestController
      * @Entity("card", expr="repository.find(cardId)")
      *
      * @param CardRequestDto $dto
-     * @param DeleteCardRequestHandler $handler
+     * @param CardRequestHandler $handler
      * @param Card|null $card
      */
     public function deleteCard(
         CardRequestDto $dto,
-        DeleteCardRequestHandler $handler,
+        CardRequestHandler $handler,
         Card $card = null
     ) {
         $dto->setCard($card);
 
-        $handler->handle($dto);
+        $handler->handleDeleteRequest($dto);
     }
 
     /**

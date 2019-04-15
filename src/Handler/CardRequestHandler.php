@@ -7,6 +7,7 @@ use App\Entity\Card;
 use App\Entity\Stage;
 use App\Repository\CardRepository;
 use App\Repository\StageRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 define('WEIGHT_CHANGE', 'change_weight');
@@ -15,7 +16,7 @@ define('WEIGHT_MOVE_DOWN', 'down');
 
 define('STAGE_CHANGE', 'change_stage');
 
-class UpdateCardPositionRequestHandler
+class CardRequestHandler
 {
     /**
      * @var StageRepository
@@ -28,15 +29,23 @@ class UpdateCardPositionRequestHandler
     private $cardRepository;
 
     /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
+    /**
      * @param StageRepository $stageRepository
      * @param CardRepository $cardRepository
+     * @param EntityManagerInterface $entityManager
      */
     public function __construct(
         StageRepository $stageRepository,
-        CardRepository $cardRepository
+        CardRepository $cardRepository,
+        EntityManagerInterface $entityManager
     ) {
         $this->stageRepository = $stageRepository;
         $this->cardRepository = $cardRepository;
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -46,7 +55,41 @@ class UpdateCardPositionRequestHandler
      *
      * @throws NotFoundHttpException
      */
-    public function handle(CardRequestDto $dto): Card
+    public function handleAddRequest(CardRequestDto $dto): Card
+    {
+        $stage = $dto->getStage();
+        if (empty($stage)) {
+            throw new NotFoundHttpException('Stage not found');
+        }
+
+        $weight = $this->stageRepository->getCardsMaxWeight($stage) + 1;
+
+        return $this->cardRepository->create($dto->getTitle(), $dto->getContent(), $stage, $weight);
+    }
+
+    /**
+     * @param CardRequestDto $dto
+     *
+     * @throws NotFoundHttpException
+     */
+    public function handleDeleteRequest(CardRequestDto $dto): void
+    {
+        $card = $dto->getCard();
+        if (empty($card)) {
+            throw new NotFoundHttpException('Card not found');
+        }
+
+        $this->cardRepository->remove($card);
+    }
+
+    /**
+     * @param CardRequestDto $dto
+     *
+     * @return Card
+     *
+     * @throws NotFoundHttpException
+     */
+    public function handleUpdatePositionRequest(CardRequestDto $dto): Card
     {
         $stage = $dto->getStage();
         if (empty($stage)) {
@@ -65,6 +108,28 @@ class UpdateCardPositionRequestHandler
         }
 
         return $card;
+    }
+
+    /**
+     * @param CardRequestDto $dto
+     *
+     * @return Card
+     *
+     * @throws NotFoundHttpException
+     */
+    public function handleUpdateRequest(CardRequestDto $dto): Card
+    {
+        $stage = $dto->getStage();
+        if (empty($stage)) {
+            throw new NotFoundHttpException('Stage not found');
+        }
+
+        $card = $dto->getCard();
+        if (empty($card)) {
+            throw new NotFoundHttpException('Card not found');
+        }
+
+        return $this->cardRepository->update($card, $dto->getTitle(), $dto->getContent(), $stage);
     }
 
     /**
