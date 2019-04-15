@@ -5,10 +5,8 @@ services:
     build:
       context: .
       dockerfile: ./Docker/php/Dockerfile
-    env_file:
-      - .env
     environment:
-      XDEBUG_CONFIG: remote_host=${IP_ADDRESS}
+      XDEBUG_CONFIG: remote_host='172.17.0.1'
     expose:
       - 9000
     volumes:
@@ -29,14 +27,12 @@ services:
       context: .
       dockerfile: ./Docker/mysql/Dockerfile
     ports:
-    - ${DB_PORT_EX}:${DB_PORT}
-    env_file:
-      - .env
+    - 8010:3306
     volumes:
       - ./Docker/mysql:/etc/mysql/conf.d
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: passwd
+      MYSQL_DATABASE: db
     networks:
       - quick-search
 networks:
