@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: ./Docker/php/Dockerfile
+    environment:
+      XDEBUG_CONFIG: remote_host='172.17.0.1'
+    expose:
+      - 9000
+    volumes:
+      - ./:/var/www/html/
+    networks:
+      - quick-search
+  nginx:
+    build:
+      context: ./Docker/nginx
+    volumes:
+      - ./public:/var/www/html/public
+    ports:
+      - 8000:80
+    networks:
+      - quick-search
+  mysql:
+    build:
+      context: .
+      dockerfile: ./Docker/mysql/Dockerfile
+    ports:
+    - 8010:3306
+    volumes:
+      - ./Docker/mysql:/etc/mysql/conf.d
+    environment:
+      MYSQL_ROOT_PASSWORD: passwd
+      MYSQL_DATABASE: db
+    networks:
+      - quick-search
+networks:
+  quick-search:
+    external: true
